@@ -1,0 +1,10 @@
+session 1
+  started ~11:45am on 2025-7-13
+  worked with Claude to pick out dependencies
+  designed the repo structure
+  built a hello world using the dependencies and a dockerfile
+  first commit ~3:05pm
+  
+
+  next session
+    add "git" to Claude's docker image
