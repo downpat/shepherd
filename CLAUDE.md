@@ -1,7 +1,7 @@
 # Claude Context for Shepherd Project
 
 ## Project Overview
-Shepherd is a Summer 2025 side project that synthesizes personal psychology research into software that acts as a helpful guide for important life goals.
+Shepherd is a Summer 2025 side project that synthesizes personal psychology research into software that acts as a helpful guide for important life goals. In the UI, "Shepherd" refers to the entity/guide that types the intro text and interacts with users.
 
 ## Repository Structure
 - `/claude/shepherd/app-repo/` - Main application repository
