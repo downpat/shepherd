@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+import AnimatedText from './AnimatedText.jsx'
+
 function App() {
-  const [showPrompt, setShowPrompt] = useState(false)
   const [showHeadline, setShowHeadline] = useState(false)
   const [showSubtitle, setShowSubtitle] = useState(false)
   const [headlineText, setHeadlineText] = useState('')
@@ -11,53 +12,29 @@ function App() {
   const [showInputArea, setShowInputArea] = useState(false)
   const [userInput, setUserInput] = useState('')
   
-  const fullHeadline = 'Tell me your dream'
+  const shepherdGreeting = 'Tell me your dream'
+  const subGreeting = 'A vision of what your life could be, of what you want it to be'
   
   useEffect(() => {
-    // Start with prompt after brief delay
-    const promptTimer = setTimeout(() => setShowPrompt(true), 500)
-    
-    // Start headline typing after prompt appears
-    const headlineTimer = setTimeout(() => setShowHeadline(true), 1500)
-    
-    return () => {
-      clearTimeout(promptTimer)
-      clearTimeout(headlineTimer)
-    }
+    // Start intro with the headline message
+    setShowHeadline(true)
   }, [])
   
-  useEffect(() => {
-    if (showHeadline) {
-      let currentIndex = 0
-      const typingInterval = setInterval(() => {
-        if (currentIndex <= fullHeadline.length) {
-          setHeadlineText(fullHeadline.slice(0, currentIndex))
-          currentIndex++
-        } else {
-          clearInterval(typingInterval)
-          // Show subtitle after headline is complete
-          setTimeout(() => {
-            setShowSubtitle(true)
-            // Start fade sequence after subtitle appears
-            setTimeout(() => {
-              setIntroComplete(true)
-              // Fade in header, then input area
-              setTimeout(() => setShowHeader(true), 800)
-              setTimeout(() => setShowInputArea(true), 1400)
-            }, 2000)
-          }, 500)
-        }
-      }, 80)
-      
-      return () => clearInterval(typingInterval)
-    }
-  }, [showHeadline])
+
+  //Use showHeadline boolean to render AnimatedText component
+
+  //Use AnimatexText component to replace Headline intro text
+
+  //Use AnimatedText component to replace Subheadline intro text
+
+  //After Subheadline text appears, start setIntroComplete and
+  //Start the setShowHeader and setShowInputArea to move the
+  //Text that was animated up into the left-hand corner
   
   return (
-    <div className="min-h-screen bg-black font-mono">
+    <div className="min-h-screen bg-white font-mono">
       <AnimatePresence mode="wait">
         {!introComplete ? (
-          // Intro Animation
           <motion.div
             key="intro"
             initial={{ opacity: 1 }}
@@ -66,46 +43,20 @@ function App() {
             className="flex items-center justify-center min-h-screen"
           >
             <div className="text-left max-w-4xl">
-              <div className="flex items-baseline">
-                <AnimatePresence>
-                  {showPrompt && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-6xl font-bold text-green-400 mr-4"
-                    >
-                      <span className="animate-pulse">$</span>
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                
-                <AnimatePresence>
-                  {showHeadline && (
-                    <motion.h1
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-6xl font-bold text-green-400 leading-tight"
-                    >
-                      {headlineText}
-                      <span className="animate-pulse text-green-300">|</span>
-                    </motion.h1>
-                  )}
-                </AnimatePresence>
+              <div className="flex flex-col space-y-4">
+		{showHeadline && (
+	          <AnimatedText 
+	            text={shepherdGreeting} 
+	            textSize={"title"} 
+	            delay={1500}
+	            onComplete={() => setShowSubtitle(true)}
+	          />
+		)}
+		{showSubtitle && (
+	          <AnimatedText text={subGreeting} textSize={"subtitle"} />
+		)}
               </div>
-              
-              <AnimatePresence>
-                {showSubtitle && (
-                  <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="text-2xl text-green-300 opacity-80 mt-4 ml-20"
-                  >
-                    A vision of what your life could be, of what you want it to be
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </div>
+	    </div>
           </motion.div>
         ) : (
           // Post-Intro Interactive State
@@ -126,7 +77,6 @@ function App() {
                   className="p-8"
                 >
                   <div className="flex items-baseline">
-                    <span className="text-2xl font-bold text-green-400 mr-2">$</span>
                     <h1 className="text-2xl font-bold text-green-400">Tell me your dream</h1>
                   </div>
                   <p className="text-lg text-green-300 opacity-80 mt-2 ml-8">
@@ -147,7 +97,6 @@ function App() {
                 >
                   <div className="w-full max-w-2xl px-8">
                     <div className="flex items-start">
-                      <span className="text-4xl font-bold text-green-400 mr-4 mt-1">$</span>
                       <div className="flex-1">
                         {userInput && (
                           <motion.div
@@ -167,7 +116,6 @@ function App() {
                           rows="3"
                           autoFocus
                         />
-                        <div className="text-green-400 text-xl animate-pulse">|</div>
                       </div>
                     </div>
                   </div>

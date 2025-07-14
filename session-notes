@@ -4,7 +4,25 @@ session 1
   designed the repo structure
   built a hello world using the dependencies and a dockerfile
   first commit ~3:05pm
-  
+  setup the UI for the first introduction to the app
+  finished @ 4:05
 
   next session
     add "git" to Claude's docker image
+
+session 2
+  started @ 1:30pm on 2025-7-14
+  finished @ 3:30pm on 2025-7-14
+  session plan:
+    remove the dollar sign from the prompt
+    switch to a white background with dark blue text and font
+    create a component that takes a string and animates the typing like in the intro
+      also type: title, subtitle, paragraph
+    replace the fade in subtitle with the same animating text
+
+  next session
+    add git to Claude's docker image
+    design the data model
+    create components for each model
+    setup routing
+    try to be ready to start on backend by end of session
