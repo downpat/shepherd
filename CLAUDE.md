@@ -36,6 +36,10 @@ Shepherd is a Summer 2025 side project that synthesizes personal psychology rese
 - PostCSS config: `tailwindcss: { config: './conf/tailwind.config.js' }`
 - Tailwind content paths: `./index.html` and `./src/**/*.{js,jsx}` (relative to `ui/`)
 
+## Styling Guidelines
+1. **Tailwind First**: Any styling suggestions should be attempted first in a Tailwind context
+2. **DRY with @apply**: When creating multiple elements with the same Tailwind classes, use the @apply directive in the relevant CSS file (e.g., `ui/src/index.css`) so changes only need to be made in one place
+
 ## Current Status
 - Initial repository setup complete
 - Ready for development planning and implementation

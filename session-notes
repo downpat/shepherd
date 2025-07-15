@@ -26,3 +26,19 @@ session 2
     create components for each model
     setup routing
     try to be ready to start on backend by end of session
+
+session 3
+  started ~4:30pm on 2025-7-15
+  stopped ~5:45pm for Brooke and Zanious drama
+  re-started at ~6:50pm
+  finished @ 7:16pm
+
+  session plan:
+    add git to Claude's docker image
+    get the intro working again with the new animation component
+
+  next session
+    design the data model
+    create components for each model
+    setup routing
+    try to be ready to start on backend by end of session

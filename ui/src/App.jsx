@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import AnimatedText from './AnimatedText.jsx'
@@ -14,6 +14,18 @@ function App() {
   
   const shepherdGreeting = 'Tell me your dream'
   const subGreeting = 'A vision of what your life could be, of what you want it to be'
+  
+  const handleTitleComplete = useCallback(() => {
+    setShowSubtitle(true);
+  }, [])
+  
+  const handleSubtitleComplete = useCallback(() => {
+    setTimeout(() => {
+      setIntroComplete(true);
+      setShowHeader(true);
+      setShowInputArea(true);
+    }, 1500);
+  }, [])
   
   useEffect(() => {
     // Start intro with the headline message
@@ -49,11 +61,16 @@ function App() {
 	            text={shepherdGreeting} 
 	            textSize={"title"} 
 	            delay={1500}
-	            onComplete={() => setShowSubtitle(true)}
+	            onComplete={handleTitleComplete}
 	          />
 		)}
 		{showSubtitle && (
-	          <AnimatedText text={subGreeting} textSize={"subtitle"} />
+	          <AnimatedText 
+	            text={subGreeting} 
+	            textSize={"subtitle"} 
+	            clearCursor={false}
+	            onComplete={handleSubtitleComplete}
+	          />
 		)}
               </div>
 	    </div>
@@ -77,9 +94,9 @@ function App() {
                   className="p-8"
                 >
                   <div className="flex items-baseline">
-                    <h1 className="text-2xl font-bold text-green-400">Tell me your dream</h1>
+                    <h1 className="text-2xl font-bold shepherd-dark-blue">Tell me your dream</h1>
                   </div>
-                  <p className="text-lg text-green-300 opacity-80 mt-2 ml-8">
+                  <p className="text-lg shepherd-dark-blue opacity-80 mt-2 ml-8">
                     A vision of what your life could be, of what you want it to be
                   </p>
                 </motion.div>
@@ -104,7 +121,7 @@ function App() {
                             animate={{ opacity: 1, scale: 1 }}
                             className="bg-green-900/20 border border-green-400/30 rounded-lg p-4 mb-4"
                           >
-                            <div className="text-green-300 whitespace-pre-wrap">
+                            <div className="shepherd-dark-blue whitespace-pre-wrap">
                               {userInput}
                             </div>
                           </motion.div>
@@ -112,7 +129,7 @@ function App() {
                         <textarea
                           value={userInput}
                           onChange={(e) => setUserInput(e.target.value)}
-                          className="w-full bg-transparent text-green-400 text-xl border-none outline-none resize-none font-mono"
+                          className="w-full bg-transparent shepherd-dark-blue text-3xl border-none outline-none resize-none font-semibold shepherd-blue-cursor"
                           rows="3"
                           autoFocus
                         />

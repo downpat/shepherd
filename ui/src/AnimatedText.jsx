@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-function AnimatedText({text, textSize, delay = 0, onComplete}) {
+function AnimatedText({text, textSize, delay = 0, onComplete, clearCursor = true}) {
   const [aText, setAText] = useState('')
+  const [showCursor, setShowCursor] = useState(true)
 
+  console.log('Rendering AnimatedText for '+text);
   useEffect(() => {
     const startTyping = () => {
       let currentIndex = 0
@@ -13,6 +15,9 @@ function AnimatedText({text, textSize, delay = 0, onComplete}) {
           currentIndex++
         } else {
           clearInterval(typingInterval)
+          if (clearCursor) {
+            setShowCursor(false)
+          }
           if (onComplete) {
             onComplete()
           }
@@ -25,18 +30,18 @@ function AnimatedText({text, textSize, delay = 0, onComplete}) {
     const delayTimer = setTimeout(startTyping, delay)
     
     return () => clearTimeout(delayTimer)
-  }, [delay, onComplete])
+  }, [text, delay, onComplete])
 
   const getTextSizeClasses = () => {
     switch(textSize) {
       case 'title':
-        return 'text-6xl font-bold text-blue-900 leading-tight'
+        return 'text-6xl font-bold shepherd-dark-blue leading-tight'
       case 'subtitle':
-        return 'text-3xl font-semibold text-blue-900 leading-relaxed'
+        return 'text-3xl font-semibold shepherd-dark-blue leading-relaxed'
       case 'paragraph':
-        return 'text-lg font-normal text-blue-900 leading-normal'
+        return 'text-lg font-normal shepherd-dark-blue leading-normal'
       default:
-        return 'text-6xl font-bold text-blue-900 leading-tight'
+        return 'text-6xl font-bold shepherd-dark-blue leading-tight'
     }
   }
 
@@ -48,7 +53,7 @@ function AnimatedText({text, textSize, delay = 0, onComplete}) {
         className={getTextSizeClasses()}
       >
         {aText}
-        <span className="animate-pulse text-blue-800">|</span>
+        {showCursor && <span className="animate-pulse shepherd-blue">|</span>}
       </motion.h1>
     </AnimatePresence>
   )

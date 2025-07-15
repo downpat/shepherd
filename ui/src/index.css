@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.shepherd-dark-blue {
+  @apply text-blue-900;
+}
+
+.shepherd-blue {
+  @apply text-blue-800;
+}
+
+.shepherd-blue-cursor {
+  caret-color: #1e3a8a; /* blue-900 to match shepherd-dark-blue */
+}
