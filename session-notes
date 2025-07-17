@@ -42,3 +42,16 @@ session 3
     create components for each model
     setup routing
     try to be ready to start on backend by end of session
+
+session 4
+  started @ 5:24pm on 2025-7-17
+  stopped @ 7:32pm
+
+  session plan
+    design the data model
+
+  next session
+    implement business entities in new architecture
+    create components for each entity
+    setup routing
+    try to be ready to start on backend by end of session
