@@ -55,3 +55,17 @@ session 4
     create components for each entity
     setup routing
     try to be ready to start on backend by end of session
+
+session 5
+  started @ 4:20pm (lol) on 2025-7-18
+  finished @ 6:25pm
+    
+  session plan
+    implement business entities in new architecture
+    setup routing
+    try to be ready to start on backend by end of session
+
+  next session
+    consider a pixel art/Natsume style logo with a shepherd watching sheep jump over a fence
+    create dreams page for landing point after user creates their first dream
+    create vertical slices in architecture for each entity

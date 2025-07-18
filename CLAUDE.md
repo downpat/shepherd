@@ -56,10 +56,46 @@ We follow Clean Architecture principles without strict layer enforcement, allowi
 ### Current Structure (Phase 1)
 ```
 src/
-├── components/           # UI layer
+├── components/           # UI layer (React components)
 ├── domain/              # Business logic (pure functions/objects)
-└── services/            # External concerns (storage, API)
+└── services/            # External concerns (storage, API, coordination)
 ```
+
+### Three-Layer Architecture Details
+
+#### 1. Domain Layer (`src/domain/`)
+**Purpose**: Pure business logic and entities
+**Rules**: 
+- No external dependencies (React, APIs, storage)
+- Pure JavaScript functions and objects
+- Contains entity creation, validation, and business rules
+- Testable without any framework
+
+**Current Files**:
+- `Dream.js`: Core Dream entity with factory functions, validation, and business operations
+- `RoleModel.js`: Supporting entity for inspiration and guidance resources
+
+#### 2. Service Layer (`src/services/`)
+**Purpose**: Coordinates business operations and manages external concerns
+**Rules**:
+- Can import and use domain layer
+- Cannot import UI components or React-specific code
+- Handles data persistence, API calls, and complex business workflows
+- Provides event system for UI reactivity
+
+**Current Files**:
+- `DreamService.js`: Singleton service managing Dream CRUD operations, validation, search, and event notifications
+
+#### 3. UI Layer (`src/components/`)
+**Purpose**: React components and user interface
+**Rules**:
+- Can use both domain and service layers
+- Owns React state and UI logic
+- Handles user interactions and presentation
+- Connects business logic to user interface
+
+**Current Files**:
+- `DreamEditor.jsx`: Form component for creating and editing Dreams with validation and state management
 
 ### Dependency Rules
 1. **Domain layer**: Pure JavaScript, no external dependencies
@@ -93,7 +129,8 @@ src/
 3. Update ClaudeSession.md at session end
 
 ## Current Status
-- Initial repository setup complete
-- Architecture: Implied Clean Architecture established
-- Phase: 1 (Small project, basic React setup)
-- Next Milestone: Create domain structure with core entities
+- **Architecture**: Three-layer Clean Architecture implemented and functional
+- **Vertical Slice**: Complete Dream entity implementation across all layers
+- **Phase**: 1 (Established architecture with working vertical slice)
+- **Files**: 6 total (significant growth from initial 2 JSX files)
+- **Next Milestone**: Integrate DreamEditor with existing UI flow and expand to Goals entity

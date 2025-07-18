@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 import AnimatedText from './AnimatedText.jsx'
 
-function App() {
+function Intro() {
   const [showHeadline, setShowHeadline] = useState(false)
   const [showSubtitle, setShowSubtitle] = useState(false)
   const [headlineText, setHeadlineText] = useState('')
@@ -11,6 +12,8 @@ function App() {
   const [showHeader, setShowHeader] = useState(false)
   const [showInputArea, setShowInputArea] = useState(false)
   const [userInput, setUserInput] = useState('')
+  
+  const navigate = useNavigate()
   
   const shepherdGreeting = 'Tell me your dream'
   const subGreeting = 'A vision of what your life could be, of what you want it to be'
@@ -26,6 +29,13 @@ function App() {
       setShowInputArea(true);
     }, 1500);
   }, [])
+
+  const handleCreateDream = () => {
+    // Navigate to dream editor with title in URL state
+    navigate('/dream/new', { 
+      state: { title: userInput } 
+    })
+  }
   
   useEffect(() => {
     // Start intro with the headline message
@@ -121,8 +131,28 @@ function App() {
                             animate={{ opacity: 1, scale: 1 }}
                             className="bg-green-900/20 border border-green-400/30 rounded-lg p-4 mb-4"
                           >
-                            <div className="shepherd-dark-blue whitespace-pre-wrap">
-                              {userInput}
+                            <div className="flex gap-4">
+                              {/* User text on the left */}
+                              <div className="flex-1 shepherd-dark-blue whitespace-pre-wrap">
+                                {userInput}
+                              </div>
+                              
+                              {/* Create Dream button on the right */}
+                              {userInput.length >= 3 && (
+                                <motion.div
+                                  initial={{ opacity: 0, x: 10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: 0.2 }}
+                                  className="flex-shrink-0"
+                                >
+                                  <button
+                                    onClick={handleCreateDream}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+                                  >
+                                    Create Dream
+                                  </button>
+                                </motion.div>
+                              )}
                             </div>
                           </motion.div>
                         )}
@@ -146,4 +176,4 @@ function App() {
   )
 }
 
-export default App
+export default Intro
