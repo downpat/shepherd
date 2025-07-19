@@ -41,12 +41,39 @@ Shepherd is a Summer 2025 side project that synthesizes personal psychology rese
 2. **DRY with @apply**: When creating multiple elements with the same Tailwind classes, use the @apply directive in the relevant CSS file (e.g., `ui/src/index.css`) so changes only need to be made in one place
 
 ## Core Domain Model
-- **Dream**: User's aspirational goal with vision and target date
+
+### Entity Hierarchy (by Importance & Intention)
+- **Dream**: Dreamer's highest aspirational vision with profound personal meaning
 - **Goal**: Structured breakdown of dreams (short/medium/long-term)
-- **Accomplishment**: Completed goals that shape user identity
+- **Accomplishment**: Completed goals that shape Dreamer identity
 - **Plan**: Strategy for achieving specific goals
 - **Task**: Individual action items within plans
 - **Habit**: Repeated tasks that become automatic behaviors
+
+### Hierarchy of Disposability & UX Weight
+1. **Dreams** (Least Disposable - Highest Weight)
+   - Sacred, weighty, require deep intention
+   - Dreamers should have "less than a handful" of dreams
+   - Death of a dream causes real disappointment
+   - Require contemplative state of mind to create
+   - Full-page experiences, never small UI elements
+   - Descriptive and comprehensive by design
+
+2. **Goals** (Moderately Disposable)
+   - More disposable than Dreams
+   - Support and serve Dreams
+   - Can be adjusted, refined, or replaced
+
+3. **Plans** (More Disposable)
+   - Tactical approaches to Goals
+   - Should be adapted as learning occurs
+   - Failure of plans is expected and healthy
+
+4. **Tasks** (Most Disposable - Lowest Weight)
+   - Highly disposable, can be created/deleted flippantly
+   - Task death should be "shrugged off as soon as possible"
+   - Lightweight UI interactions appropriate
+   - Quantity over quality mindset acceptable
 
 ## Architecture: Implied Clean Architecture
 
@@ -118,6 +145,28 @@ src/
 - Start with functions before classes
 - Use plain objects before complex state management
 - Add abstraction when you feel pain, not before
+
+### UX Weight & Intention Rules
+1. **Dreams Must Feel Sacred**: Never trivialize Dream creation/editing
+2. **Full-Page Respect**: Dreams deserve full-page experiences, never modals or small lists
+3. **Contemplative Design**: Dream interfaces should encourage thoughtful, intentional interaction
+4. **Hierarchy Reflection**: UI weight should match entity importance (Dreams > Goals > Plans > Tasks)
+5. **Anti-Productivity Mindset**: We are NOT building a task manager - we're building a life transformation tool
+
+### Dreamer Terminology
+- Always refer to people using DreamShepherd as "Dreamers", never "users"
+- This reflects the aspirational, intentional nature of the application
+
+### Code Organization Rules
+1. **Group by Relationship, Then Alphabetize**:
+   - Organize imports, variables, and code blocks by their conceptual relationship
+   - Within each relationship group, use alphabetical order
+   - Example: State variables grouped by UI phase (Intro vs Input), then alphabetized within each group
+
+2. **Clear Section Boundaries**:
+   - Use comment blocks to separate logical sections
+   - Group related functionality together (all state, all event handlers, etc.)
+   - Maintain consistent grouping patterns across similar files
 
 ### Session Management
 **At the start of each Shepherd session:**

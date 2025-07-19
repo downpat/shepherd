@@ -13,3 +13,34 @@
 .shepherd-blue-cursor {
   caret-color: #1e3a8a; /* blue-900 to match shepherd-dark-blue */
 }
+
+/* Form Input Styles */
+.dream-title-input {
+  @apply w-full text-xl p-4 border border-gray-300 rounded-lg;
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply outline-none transition-all;
+}
+
+.dream-vision-textarea {
+  @apply w-full h-64 p-4 border border-gray-300 rounded-lg;
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply outline-none transition-all resize-vertical;
+}
+
+.shepherd-intro-textarea {
+  @apply w-full bg-transparent shepherd-dark-blue text-3xl;
+  @apply border-none outline-none resize-none font-semibold;
+  @apply shepherd-blue-cursor;
+}
+
+/* Button Styles */
+.shepherd-primary-button {
+  @apply px-6 py-3 bg-blue-600 text-white rounded-lg;
+  @apply hover:bg-blue-700 disabled:bg-blue-400;
+  @apply disabled:cursor-not-allowed transition-colors;
+}
+
+.shepherd-small-button {
+  @apply px-4 py-2 bg-blue-600 text-white text-sm rounded-lg;
+  @apply hover:bg-blue-700 transition-colors whitespace-nowrap;
+}

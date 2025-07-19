@@ -183,3 +183,155 @@
    - Update DreamEditor to be true full-page component (remove modal styling)
    - Add loading states and error handling for navigation
    - Consider adding dream preview/summary cards in dashboard
+
+## Session 2025-07-19
+
+### Session Summary
+**Objective**: Simplify routing and establish UX rules for existing users
+
+**Key Accomplishments**:
+1. **Routing Simplification**:
+   - Removed `/dream/new` route in favor of unified `/dream/:slug` pattern
+   - Dreams are now created immediately when user clicks "Create Dream" with their title
+   - All dream editing uses consistent slug-based URLs that can be shared
+   - Updated DreamEditor to load dreams by slug from URL params
+
+2. **UX Rules Established**:
+   - **Intro Page Behavior**: Intro should only run for new users who haven't seen it before
+   - **Navigation for Existing Users**: Users with dreams should navigate to Dreams Dashboard, not Intro
+   - **Error Handling**: Failed operations redirect to Dreams Dashboard for users with dreams
+   - **Dreams Dashboard as Home**: For existing users, `/dreams` becomes their primary landing page
+
+3. **Service Layer Enhancement**:
+   - Leveraged existing `getDreamBySlug` method for URL-based dream loading
+   - Updated DreamEditor to work as standalone route component
+   - Added loading states for dream fetching
+
+### Architectural Impact
+- **Simplified Routing**: Single pattern `/dream/:slug` for all dream editing
+- **User-Centric Navigation**: Different home pages based on user state (new vs existing)
+- **Shareable URLs**: Dream URLs are now human-readable and shareable
+- **State Management**: Dreams created immediately upon user intent, not on save
+
+### UX Decision: Empty Dreams Handling
+**Future Consideration**: Need to handle completely empty dreams in UX flow
+- Current: Dreams created with title from Intro, then user fills vision
+- Future: Consider allowing truly empty dreams or different creation patterns
+- Note: This routing pattern supports both current and future empty dream scenarios
+
+### Current Project State
+- **Size**: 7 files (routing simplified, no new files)
+- **Phase**: 1+ (Enhanced routing with user-centric navigation)
+- **Tech Stack**: React + React Router + Vite + Tailwind + Shadcn/ui + Framer Motion
+- **Architecture**: Clean Architecture + simplified routing patterns
+
+### Files Modified This Session
+- `DreamShepherd.jsx`: Removed `/dream/new` route
+- `Intro.jsx`: Added dream creation before navigation, imports domain/service layers
+- `DreamEditor.jsx`: Converted to route component with slug-based loading and Dreams Dashboard navigation
+
+### Next Session Recommendations
+**Priority 1: Complete Dreamer Flow**
+1. **Create DreamsDashboard Component**: 
+   - Route: `/dreams` for listing all dreams
+   - "Create New Dream" functionality
+   - Links to individual dreams via slug
+   - Becomes home page for existing users
+
+2. **Implement User State Detection**:
+   - Check if user has dreams on app load
+   - Route new users to Intro, existing users to Dreams Dashboard
+   - Update root route `/` logic accordingly
+
+**Priority 2: Architecture Expansion**
+3. **Goals Entity Implementation**: Apply same vertical slice pattern to Goals
+4. **User Flow Completion**: Intro → Create Dream → Edit Dream → Dreams Dashboard cycle
+
+**Keep in Mind**: DreamsDashboard, complete Dreamer flow, Goals entity expansion
+
+## Session 2025-07-19 (Continued)
+
+### Session Summary Part 2
+**Objective**: Establish Dreams hierarchy of importance and UX philosophy
+
+**Key Philosophical Decisions**:
+1. **Dreams are Sacred, Not Disposable**:
+   - Dreams require highest level of intention to create
+   - Dreamers should have "less than a handful" of dreams (not thousands)
+   - Dream death causes real disappointment - UX must reflect this weight
+   - Dreams should be comprehensive and deeply descriptive
+
+2. **Hierarchy of Disposability Established**:
+   ```
+   Dreams (Sacred) → Goals (Moderate) → Plans (Disposable) → Tasks (Highly Disposable)
+   ```
+   - Tasks can be created/deleted flippantly - "shrugged off as soon as possible"
+   - Dreams require contemplative state of mind and careful consideration
+   - UI weight must match entity importance
+
+3. **Anti-Task Manager Philosophy**:
+   - DreamShepherd is NOT a productivity tool - it's a life transformation tool
+   - Dreams deserve full-page experiences, never small lists or modals
+   - Contemplative design should encourage thoughtful interaction
+   - Quality over quantity for Dreams (opposite of typical task apps)
+
+4. **Dreamer Terminology Established**:
+   - Always "Dreamers", never "users"
+   - Reflects aspirational, intentional nature of application
+
+### UX Implications for Future Development:
+- **DreamsDashboard**: Must honor Dreams' sacred nature, not treat them as list items
+- **Dream Creation**: Should feel weighty, requiring deliberate decision to engage
+- **Navigation**: Dreams are destinations, not quick actions
+- **Interaction Design**: Slow, intentional flows over fast, efficient ones
+
+### Architecture Impact:
+- Reinforces full-page routing decisions (no modals for Dreams)
+- Validates Clean Architecture approach (Dreams as domain center)
+- Guides future Goals/Plans/Tasks UI - different weight for different entities
+
+### Rules Added to CLAUDE.md:
+- Entity hierarchy by importance and disposability
+- UX weight and intention guidelines
+- Anti-productivity mindset principles
+- Dreamer terminology requirements
+- Code organization rules (group by relationship, then alphabetize)
+
+### Technical Accomplishments:
+- Fixed updateSingleDream method to properly use domain layer updateDream function
+- Established vim configuration for JavaScript development (2-space tabs, syntax highlighting)
+- Completed line length cleanup across codebase (79-character standard)
+- Added semantic CSS classes for Dream-specific UI elements
+
+### Session End - Next Priority Tasks:
+**CRITICAL FOR NEXT SESSION:**
+
+1. **DreamsDashboard Implementation** (High Priority):
+   - Create `/dreams` route component for viewing all Dreams
+   - Must honor Dreams' sacred nature - NOT simple list items
+   - Use substantial visual presence for each Dream (cards/tiles)
+   - Include "Create New Dream" functionality
+   - Becomes home page for existing Dreamers
+
+2. **Complete Dreamer Flow** (High Priority):
+   - Implement user state detection (new vs existing Dreamers)
+   - Route new Dreamers to Intro, existing to DreamsDashboard
+   - Complete cycle: Intro → Create Dream → Edit Dream → Save → DreamsDashboard
+   - Test full navigation flow
+
+3. **Goals Entity Architecture** (Medium Priority):
+   - Apply same vertical slice pattern (Domain → Service → UI)
+   - Create Goals domain entity with business logic
+   - Implement GoalsService following DreamService pattern
+   - Design Goals UI components (respecting hierarchy: less sacred than Dreams)
+   - Integrate Goals into Dream entity relationships
+
+4. **Future Considerations**:
+   - Add proper error handling UI throughout application
+   - Implement data persistence (localStorage → external API)
+   - Consider offline sync capabilities
+   - Add style guide and linter configuration
+
+**Architecture Status**: Clean Architecture proven effective, ready for horizontal expansion to Goals entity
+
+**Philosophy Established**: Dreams are sacred, Goals are tactical, Plans are disposable, Tasks are highly disposable

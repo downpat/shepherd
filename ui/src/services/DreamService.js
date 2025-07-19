@@ -4,7 +4,7 @@
  * Following Clean Architecture: Service layer can use domain, cannot use UI
  */
 
-import { validateDream } from '../domain/Dream.js'
+import { updateDream, validateDream } from '../domain/Dream.js'
 
 class DreamService {
   constructor() {
@@ -17,7 +17,8 @@ class DreamService {
     try {
       const validation = validateDream(dream)
       if (!validation.isValid) {
-        throw new Error(`Invalid dream: ${validation.errors.join(', ')}`)
+        const errorList = validation.errors.join(', ')
+        throw new Error(`Invalid dream: ${errorList}`)
       }
 
       this.dreams.set(dream.id, dream)
@@ -62,7 +63,9 @@ class DreamService {
   async getAllDreams() {
     try {
       return Array.from(this.dreams.values())
-        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+        .sort((a, b) => {
+          return new Date(b.updatedAt) - new Date(a.updatedAt)
+        })
     } catch (error) {
       console.error('Failed to get all dreams:', error)
       throw error
@@ -70,14 +73,15 @@ class DreamService {
   }
 
   // Update an existing dream
-  async updateDream(id, updates) {
+  async updateSingleDream(id, updates) {
     try {
       const existingDream = await this.getDream(id)
-      const updatedDream = { ...existingDream, ...updates, updatedAt: new Date().toISOString() }
+      const updatedDream = updateDream(existingDream, updates);
       
       const validation = validateDream(updatedDream)
       if (!validation.isValid) {
-        throw new Error(`Invalid dream update: ${validation.errors.join(', ')}`)
+        const errorList = validation.errors.join(', ')
+        throw new Error(`Invalid dream update: ${errorList}`)
       }
 
       this.dreams.set(id, updatedDream)
@@ -173,7 +177,8 @@ class DreamService {
         if (validation.isValid) {
           this.dreams.set(dream.id, dream)
         } else {
-          console.warn(`Skipping invalid dream during import: ${validation.errors.join(', ')}`)
+          const errorList = validation.errors.join(', ')
+          console.warn(`Skipping invalid dream during import: ${errorList}`)
         }
       }
 

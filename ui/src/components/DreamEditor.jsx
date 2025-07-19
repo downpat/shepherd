@@ -1,29 +1,57 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { createDream, updateDream, validateDream } from '../domain/Dream.js'
+import { useParams, useNavigate } from 'react-router-dom'
+import {
+  createDream,
+  updateDream,
+  validateDream
+} from '../domain/Dream.js'
+import dreamService from '../services/DreamService.js'
 
-const DreamEditor = ({ 
-  dream = null, 
-  onSave, 
-  onCancel,
-  isEditing = false 
-}) => {
+const DreamEditor = () => {
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const [dream, setDream] = useState(null)
   const [formData, setFormData] = useState({
     title: '',
     vision: ''
   })
   const [errors, setErrors] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [loading, setLoading] = useState(true)
+  
 
+  //Load dream by slug on component mount
   useEffect(() => {
-    if (dream) {
-      setFormData({
-        title: dream.title || '',
-        vision: dream.vision || ''
-      })
+    const loadDream = async () => {
+      try {
+        setLoading(true)
+        const dreamData = await dreamService.getDreamBySlug(slug)
+        if (dreamData) {
+          setDream(dreamData)
+          setFormData({
+            title: dreamData.title || '',
+            vision: dreamData.vision || ''
+          })
+        } else {
+          // Dream not found, redirect to home
+          navigate('/')
+        }
+      } catch (error) {
+        console.error('Error loading dream:', error)
+        navigate('/')
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [dream])
 
+    if (slug) {
+      loadDream()
+    }
+  }, [slug, navigate])
+
+  //Updates the form data state for the appropriate field
+  //when a form input element is changed
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -36,19 +64,14 @@ const DreamEditor = ({
     }
   }
 
+  //Handles form submission. Updates the existing dream
+  //with form data and saves to service
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     try {
-      let dreamToSave
-      
-      if (isEditing && dream) {
-        dreamToSave = updateDream(dream, formData)
-      } else {
-        dreamToSave = createDream(formData)
-      }
-
+      const dreamToSave = updateDream(dream, formData)
       const validation = validateDream(dreamToSave)
       
       if (!validation.isValid) {
@@ -57,18 +80,35 @@ const DreamEditor = ({
         return
       }
 
-      await onSave(dreamToSave)
+      await dreamService.updateSingleDream(dream.id, formData)
+      // Navigate to dreams dashboard after successful save
+      navigate('/dreams')
     } catch (error) {
       setErrors(['Failed to save dream. Please try again.'])
+      // On error, still go to dreams dashboard since user has dreams
+      navigate('/dreams')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  //Handles cancel - navigate to dreams dashboard since user has dreams
   const handleCancel = () => {
-    if (onCancel) {
-      onCancel()
-    }
+    navigate('/dreams')
+  }
+
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="w-full max-w-4xl mx-auto p-8 text-center"
+      >
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-3xl font-bold shepherd-dark-blue mb-8">Loading your dream...</h2>
+        </div>
+      </motion.div>
+    )
   }
 
   return (
@@ -81,7 +121,7 @@ const DreamEditor = ({
     >
       <div className="bg-white rounded-lg shadow-lg p-8">
         <h2 className="text-3xl font-bold shepherd-dark-blue mb-8">
-          {isEditing ? 'Edit Your Dream' : 'Capture Your Dream'}
+          Edit Your Dream
         </h2>
 
         {errors.length > 0 && (
@@ -113,7 +153,7 @@ const DreamEditor = ({
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
               placeholder="What is your dream?"
-              className="w-full text-xl p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              className="dream-title-input"
               maxLength={200}
             />
             <div className="text-sm text-gray-500 mt-2">
@@ -130,15 +170,16 @@ const DreamEditor = ({
               Your Vision
             </label>
             <div className="text-sm text-gray-600 mb-3">
-              Describe your dream in detail. What would your life look like? How would you feel? 
-              What would you be doing? Paint a vivid picture.
+              {`Describe your dream in detail. What would your life ` +
+               `look like? How would you feel? What would you be doing? ` +
+               `Paint a vivid picture.`}
             </div>
             <textarea
               id="dream-vision"
               value={formData.vision}
               onChange={(e) => handleInputChange('vision', e.target.value)}
               placeholder="I envision a life where..."
-              className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-vertical"
+              className="dream-vision-textarea"
               rows={12}
             />
             <div className="text-sm text-gray-500 mt-2">
@@ -158,7 +199,7 @@ const DreamEditor = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+              className="shepherd-primary-button"
             >
               {isSubmitting 
                 ? 'Saving...' 

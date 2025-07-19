@@ -10,9 +10,8 @@ function DreamShepherd() {
       <Routes>
         {/* Intro page at root */}
         <Route path="/" element={<Intro />} />
-        
+
         {/* Dream creation/editing routes */}
-        <Route path="/dream/new" element={<DreamEditor />} />
         <Route path="/dream/:slug" element={<DreamEditor />} />
       </Routes>
     </Router>

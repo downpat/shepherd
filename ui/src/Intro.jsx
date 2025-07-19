@@ -3,25 +3,42 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
 import AnimatedText from './AnimatedText.jsx'
+import { createDream } from './domain/Dream.js'
+import dreamService from './services/DreamService.js'
 
 function Intro() {
+  ///////////////
+  //  State variables and setters
+  ///////////////
+
+  //Shepherd Intro state
+  const [introComplete, setIntroComplete] = useState(false)
   const [showHeadline, setShowHeadline] = useState(false)
   const [showSubtitle, setShowSubtitle] = useState(false)
-  const [headlineText, setHeadlineText] = useState('')
-  const [introComplete, setIntroComplete] = useState(false)
+
+  //Shepherd User Input state
   const [showHeader, setShowHeader] = useState(false)
-  const [showInputArea, setShowInputArea] = useState(false)
   const [userInput, setUserInput] = useState('')
+  const [showInputArea, setShowInputArea] = useState(false)
   
+  //Navigation
   const navigate = useNavigate()
   
+  //Shepherd's script
   const shepherdGreeting = 'Tell me your dream'
-  const subGreeting = 'A vision of what your life could be, of what you want it to be'
+  const subGreeting = `A vision of what your life could be, ` +
+    `of what you want it to be`
   
+  ///////////////
+  //  Event Handlers
+  ///////////////
+
+  //Handle the end of Shepherd's opening line
   const handleTitleComplete = useCallback(() => {
     setShowSubtitle(true);
   }, [])
   
+  //Handle the end of Shepherd's clarification
   const handleSubtitleComplete = useCallback(() => {
     setTimeout(() => {
       setIntroComplete(true);
@@ -30,28 +47,26 @@ function Intro() {
     }, 1500);
   }, [])
 
-  const handleCreateDream = () => {
-    // Navigate to dream editor with title in URL state
-    navigate('/dream/new', { 
-      state: { title: userInput } 
-    })
+  //Handles Dreamer clicking "create dream"
+  const handleCreateDream = async () => {
+    try {
+      // Create dream with title from user input
+      const newDream = createDream({ title: userInput })
+      await dreamService.createDream(newDream)
+      
+      // Navigate to dream editor using the dream's slug
+      navigate(`/dream/${newDream.slug}`)
+    } catch (error) {
+      console.error('Error creating dream:', error)
+      // TODO: Add proper error handling UI
+    }
   }
   
+  //Kick-off the intro
   useEffect(() => {
     // Start intro with the headline message
     setShowHeadline(true)
   }, [])
-  
-
-  //Use showHeadline boolean to render AnimatedText component
-
-  //Use AnimatexText component to replace Headline intro text
-
-  //Use AnimatedText component to replace Subheadline intro text
-
-  //After Subheadline text appears, start setIntroComplete and
-  //Start the setShowHeader and setShowInputArea to move the
-  //Text that was animated up into the left-hand corner
   
   return (
     <div className="min-h-screen bg-white font-mono">
@@ -147,7 +162,7 @@ function Intro() {
                                 >
                                   <button
                                     onClick={handleCreateDream}
-                                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+                                    className="shepherd-small-button"
                                   >
                                     Create Dream
                                   </button>
@@ -159,7 +174,7 @@ function Intro() {
                         <textarea
                           value={userInput}
                           onChange={(e) => setUserInput(e.target.value)}
-                          className="w-full bg-transparent shepherd-dark-blue text-3xl border-none outline-none resize-none font-semibold shepherd-blue-cursor"
+                          className="shepherd-intro-textarea"
                           rows="3"
                           autoFocus
                         />

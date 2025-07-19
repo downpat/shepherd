@@ -5,7 +5,10 @@
 
 const generateSlugFromTitle = (title) => {
   // TODO: Implement proper slug generation logic
-  return title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+  return title
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '');
 };
 
 export const createDream = ({
@@ -102,7 +105,7 @@ export const validateDream = (dream) => {
   };
 };
 
-export const isDreamComplete = (dream) => {
+export const isDreamPopulated = (dream) => {
   return dream.title.trim().length > 0 && 
          dream.vision.trim().length > 0;
 };
@@ -112,6 +115,8 @@ export const getDreamProgress = (dream) => {
     return 0;
   }
 
-  const completedGoals = dream.goals.filter(goal => goal.status === 'completed').length;
+  const completedGoals = dream.goals
+    .filter(goal => goal.status === 'completed')
+    .length;
   return Math.round((completedGoals / dream.goals.length) * 100);
 };

@@ -69,3 +69,60 @@ session 5
     consider a pixel art/Natsume style logo with a shepherd watching sheep jump over a fence
     create dreams page for landing point after user creates their first dream
     create vertical slices in architecture for each entity
+
+session 6
+  started @ 1:09pm on 2025-7-19
+
+  session plan
+    consider a pixel art/Natsume style logo with a shepherd watching sheep jump over a fence
+      we haven't done enough marketing yet
+      I definitely like the concept of shepherds, sheep, counting sheep, and dreams, but
+        I have to spend some time considering how to implement that while inspiring
+        our target audience and establishing the best brand that serves the project
+    code review of recent changes
+      change "dream/new" route to just "dream/<slug>" or "dream/"
+        need to consider difference between editing/creating, which at the moment there might not
+          be, because there's not way to get to the dream editor without a slug
+      let's try to stick to a strict 79 character line length
+        problem with const strings
+        problem with className property
+      One of the problems we had with the intro is that we were passing anonymous functions
+        defined in the JSX part of the component function to the onComplete property of
+        the AnimatedText component. This meant the AnimatedText component was getting
+        a brand new function every time the Intro component rendered, which meant the
+        AnimatedText child components were re-running their useEffect functions everytime
+        because the dependency for the useEffect was getting a new callback function. When
+        we moved the callback definitions out of the JSX and declared them as javascript
+        constants the AnimatedText components only needed to call useEffect once, because
+        the dependencies were no longer changing
+      questions for claude
+        I don't like the dream/new route. A dream should always be dream/<slug>
+        What does the AnimatePresence component do? How does the "mode" affect it?
+        What does the motion.div component do? What features of motion.div does DreamShepherd rely on?
+        Explain RE in generateSlugFromTitle in domain/Dream.js
+        Discuss the service pattern in general and some resources that describe it, what the state of
+          pattern is in modern development, and why it's useful to DreamShepherd's Implied Clean Architecture
+        Explain the sort on getAllDreams in the services/DreamService.js
+        How are the listeners in the DreamService going to be populated? Where is subscribe going to run?
+      consider having Claude read changes and try to extract rules
+        have Claude make a rule to refer to the user as the Dreamer
+        don't commit changes, have Claude look at the active diff
+        remind him to ignore this file
+      code should be grouped by relevance and then alphabetically
+      changed isDreamComplete function in Dream.js to isDreamPopulated, so as to not confuse
+        between a valid dream and a dream that has come true.
+      changed updateDream to updateSingleDream in services/DreamService.js, had it use updateDream
+        in domain/Dream.js, making it more DRY
+      understood how singleton service is used in DreamService.js - one service for the whole app
+    setup vim for javascript development
+
+  next session
+    start working on a ubiquitous UI element for the shepherd
+    not right now button
+      they need to set aside focused time to work on their dream
+      have the shepherd tell them to come back when they're ready
+        after a cup of coffee, after a good workout, after a conversation with a trusted friend
+    create dreams page for landing point after user creates their first dream
+    update components/DreamEditor.jsx to use the services/DreamService
+    create vertical slices in architecture for each entity
+      make sure goals entity matches with assumptions of functions in Dream.js

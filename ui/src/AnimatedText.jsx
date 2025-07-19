@@ -1,23 +1,33 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+//Helper component for working with animated text
+//Primarily useful for when Shepherd is talking/typing
+
 function AnimatedText({text, textSize, delay = 0, onComplete, clearCursor = true}) {
   const [aText, setAText] = useState('')
   const [showCursor, setShowCursor] = useState(true)
 
-  console.log('Rendering AnimatedText for '+text);
+  //Run the text animation
   useEffect(() => {
     const startTyping = () => {
       let currentIndex = 0
+
+      //Use setInterval to animate typing, 1 char per 80ms
       const typingInterval = setInterval(() => {
         if (currentIndex <= text.length) {
+	  //During the animation, add a char every interval
           setAText(text.slice(0, currentIndex))
           currentIndex++
         } else {
           clearInterval(typingInterval)
+
+	  //If clearCursor is true, clear the cursor when typing completes
           if (clearCursor) {
             setShowCursor(false)
           }
+
+	  //Run the callback when typing completes
           if (onComplete) {
             onComplete()
           }
@@ -27,11 +37,14 @@ function AnimatedText({text, textSize, delay = 0, onComplete, clearCursor = true
       return () => clearInterval(typingInterval)
     }
 
+    //Don't start the animation until the delay is complete
     const delayTimer = setTimeout(startTyping, delay)
     
+    //Clear the delay timeout after useEffect is finished
     return () => clearTimeout(delayTimer)
   }, [text, delay, onComplete])
 
+  //Use different Tailwind/CSS classes depending on textSize prop
   const getTextSizeClasses = () => {
     switch(textSize) {
       case 'title':
