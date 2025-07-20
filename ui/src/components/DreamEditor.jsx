@@ -19,7 +19,7 @@ const DreamEditor = () => {
   const [errors, setErrors] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
-  
+
 
   //Load dream by slug on component mount
   useEffect(() => {
@@ -57,7 +57,7 @@ const DreamEditor = () => {
       ...prev,
       [field]: value
     }))
-    
+
     // Clear errors when user starts typing
     if (errors.length > 0) {
       setErrors([])
@@ -73,7 +73,7 @@ const DreamEditor = () => {
     try {
       const dreamToSave = updateDream(dream, formData)
       const validation = validateDream(dreamToSave)
-      
+
       if (!validation.isValid) {
         setErrors(validation.errors)
         setIsSubmitting(false)
@@ -141,8 +141,8 @@ const DreamEditor = () => {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Title Field */}
           <div>
-            <label 
-              htmlFor="dream-title" 
+            <label
+              htmlFor="dream-title"
               className="block text-lg font-semibold shepherd-dark-blue mb-3"
             >
               Dream Title
@@ -163,8 +163,8 @@ const DreamEditor = () => {
 
           {/* Vision Field */}
           <div>
-            <label 
-              htmlFor="dream-vision" 
+            <label
+              htmlFor="dream-vision"
               className="block text-lg font-semibold shepherd-dark-blue mb-3"
             >
               Your Vision
@@ -201,11 +201,9 @@ const DreamEditor = () => {
               disabled={isSubmitting}
               className="shepherd-primary-button"
             >
-              {isSubmitting 
-                ? 'Saving...' 
-                : isEditing 
-                  ? 'Update Dream' 
-                  : 'Save Dream'
+              {isSubmitting
+                ? 'Saving...'
+                : 'Save Dream'
               }
             </button>
           </div>

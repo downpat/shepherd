@@ -24,7 +24,7 @@
 .dream-vision-textarea {
   @apply w-full h-64 p-4 border border-gray-300 rounded-lg;
   @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-  @apply outline-none transition-all resize-vertical;
+  @apply outline-none transition-all resize-y;
 }
 
 .shepherd-intro-textarea {

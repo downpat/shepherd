@@ -126,3 +126,8 @@ session 6
     update components/DreamEditor.jsx to use the services/DreamService
     create vertical slices in architecture for each entity
       make sure goals entity matches with assumptions of functions in Dream.js
+
+session 7
+  session shortened by a personal matter
+  a few bug fixes and some thinking about how plans and goals related,
+    but nothing more concrete than that

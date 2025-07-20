@@ -87,10 +87,6 @@ export const validateDream = (dream) => {
     errors.push('Dream title must be 200 characters or less');
   }
 
-  if (!dream.vision || dream.vision.trim().length === 0) {
-    errors.push('Dream must have a vision');
-  }
-
   if (!Array.isArray(dream.goals)) {
     errors.push('Dream goals must be an array');
   }
@@ -106,7 +102,7 @@ export const validateDream = (dream) => {
 };
 
 export const isDreamPopulated = (dream) => {
-  return dream.title.trim().length > 0 && 
+  return dream.title.trim().length > 0 &&
          dream.vision.trim().length > 0;
 };
 

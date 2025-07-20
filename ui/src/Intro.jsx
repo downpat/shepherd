@@ -20,15 +20,15 @@ function Intro() {
   const [showHeader, setShowHeader] = useState(false)
   const [userInput, setUserInput] = useState('')
   const [showInputArea, setShowInputArea] = useState(false)
-  
+
   //Navigation
   const navigate = useNavigate()
-  
+
   //Shepherd's script
   const shepherdGreeting = 'Tell me your dream'
   const subGreeting = `A vision of what your life could be, ` +
     `of what you want it to be`
-  
+
   ///////////////
   //  Event Handlers
   ///////////////
@@ -37,7 +37,7 @@ function Intro() {
   const handleTitleComplete = useCallback(() => {
     setShowSubtitle(true);
   }, [])
-  
+
   //Handle the end of Shepherd's clarification
   const handleSubtitleComplete = useCallback(() => {
     setTimeout(() => {
@@ -52,8 +52,9 @@ function Intro() {
     try {
       // Create dream with title from user input
       const newDream = createDream({ title: userInput })
-      await dreamService.createDream(newDream)
-      
+      console.dir(dreamService)
+      await dreamService.saveDream(newDream)
+
       // Navigate to dream editor using the dream's slug
       navigate(`/dream/${newDream.slug}`)
     } catch (error) {
@@ -61,13 +62,13 @@ function Intro() {
       // TODO: Add proper error handling UI
     }
   }
-  
+
   //Kick-off the intro
   useEffect(() => {
     // Start intro with the headline message
     setShowHeadline(true)
   }, [])
-  
+
   return (
     <div className="min-h-screen bg-white font-mono">
       <AnimatePresence mode="wait">
@@ -82,17 +83,17 @@ function Intro() {
             <div className="text-left max-w-4xl">
               <div className="flex flex-col space-y-4">
 		{showHeadline && (
-	          <AnimatedText 
-	            text={shepherdGreeting} 
-	            textSize={"title"} 
+	          <AnimatedText
+	            text={shepherdGreeting}
+	            textSize={"title"}
 	            delay={1500}
 	            onComplete={handleTitleComplete}
 	          />
 		)}
 		{showSubtitle && (
-	          <AnimatedText 
-	            text={subGreeting} 
-	            textSize={"subtitle"} 
+	          <AnimatedText
+	            text={subGreeting}
+	            textSize={"subtitle"}
 	            clearCursor={false}
 	            onComplete={handleSubtitleComplete}
 	          />
@@ -127,7 +128,7 @@ function Intro() {
                 </motion.div>
               )}
             </AnimatePresence>
-            
+
             {/* Interactive Input Area */}
             <AnimatePresence>
               {showInputArea && (
@@ -151,7 +152,7 @@ function Intro() {
                               <div className="flex-1 shepherd-dark-blue whitespace-pre-wrap">
                                 {userInput}
                               </div>
-                              
+
                               {/* Create Dream button on the right */}
                               {userInput.length >= 3 && (
                                 <motion.div
