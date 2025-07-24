@@ -347,3 +347,93 @@
 
 ### Next Session Priority
 - Complete Goals and Plans domain modeling and implementation
+
+## Session 2025-07-24
+
+### Session Summary
+**Objective**: Design entity models for Goals, Plans, Tasks, Sessions, and Habits
+
+**Key Accomplishments**:
+1. **Goals Entity Implementation** (SMART Framework):
+   - Designed Goals with SMART framework: Specific (title/description), Measurable (target/magnitude), Attainable (confidence 1-10), Relevant (relevance field), Time-bound (timeHorizon/timeLimit)
+   - Added 8 categories: Health, Fitness, Education, Professional, Social, Family, Money, Spiritual
+   - Time horizons: short-term (day, <1yr), mid-term (month, <3yr), long-term (year, 5+yr)
+   - Loosely coupled to Dreams via dreamIds array for future many-to-many support
+   - Independent slugs not coupled to Dream slugs
+
+2. **Plans Entity Implementation**:
+   - Plans as daily workspace with one-to-one Goal relationship
+   - Mission statement with versioning system (volumes/chapters tracking evolution)
+   - Contains taskIds, sessionIds, habitIds arrays
+   - Statistics tracking for progress metrics
+
+3. **Tasks Entity Implementation**:
+   - Simplified to essentials: title, scheduledDate, scheduledTime, status
+   - Three statuses only: scheduled, completed, skipped
+   - Integer IDs for autocomplete, collision-safe slugs (task-{id}-{title})
+   - No descriptions, mission connections, completion timestamps, or rescheduling
+   - Highly disposable design philosophy
+
+4. **Sessions Entity Implementation**:
+   - Prerequisites array (conditions like "quiet workspace", "not too tired")
+   - Duration in minutes, mission connection description
+   - Post-session reflection: sessionNotes (what happened) and sessionMood (how they felt)
+   - Real-time UI capability noted for future implementation
+
+5. **Habits Architecture** (Two-Entity System):
+   - **HabitIdentity**: Earned badge with UUID, name chosen by Dreamer, source info
+   - **HabitInstance**: Simple pairing of habitIdentityId + taskId
+   - Eliminates duplication by reusing Task entity for scheduling
+
+6. **Habit Promotion Algorithm Design**:
+   - 30+ completions in 60 days makes Tasks/Sessions eligible for habit status
+   - Algorithm: filter last 60 days → group by title → count completions → promote if ≥30
+   - Applied to both Tasks and Sessions independently
+
+### Architectural Impact
+- **Entity Relationships Established**: Dream → Goal → Plan → Tasks/Sessions → Habits
+- **Time Horizon Hierarchy**: Dreams (timeless) → Goals (SMART) → Plans (operational) → Tasks/Sessions (scheduled) → Habits (routine)
+- **Identity System**: Habits as earned badges affecting Dreamer identity
+- **Workspace Concept**: Plans as primary daily interaction point
+
+### Current Project State
+- **Entity Models**: 7 domain entities designed (Dream, Goal, Plan, Task, Session, HabitIdentity, HabitInstance)
+- **Files Created**: Goal.js, Plan.js, Task.js, Session.js, HabitIdentity.js, HabitInstance.js
+- **Phase**: 1+ (Expanded domain model with comprehensive entity architecture)
+- **Architecture**: Clean Architecture with full entity relationship system
+
+### Technical Decisions Made
+1. **Field Naming**: `timeHorizon` chosen over "timeLength" for Goals
+2. **Task Simplification**: Removed complexity, kept only essential fields
+3. **Session Reflection**: Added sessionNotes and sessionMood for post-completion
+4. **Habit Decomposition**: Split into Identity (earned badge) and Instance (scheduling)
+5. **Loose Coupling**: Goals support future many-to-many with Dreams
+6. **Integer IDs**: Tasks use simple integers for autocomplete functionality
+
+### Files Created/Modified This Session
+- **Created**: `src/domain/Goal.js` - SMART framework Goals implementation
+- **Created**: `src/domain/Plan.js` - Daily workspace with mission versioning
+- **Created**: `src/domain/Task.js` - Simplified, disposable task system
+- **Created**: `src/domain/Session.js` - Discovery/practice time with reflection
+- **Created**: `src/domain/HabitIdentity.js` - Earned identity badges
+- **Created**: `src/domain/HabitInstance.js` - Identity-Task pairings
+- **Modified**: `CLAUDE.md` - Added comprehensive Plans/Tasks/Sessions/Habits specification
+
+### Next Session Priorities
+1. **Complete Habit Promotion Algorithm**:
+   - Implement the filtering/counting function in Plan module
+   - Test the 30+ completions in 60 days logic
+   - Create promotion workflow from Task/Session to HabitIdentity
+
+2. **Service Layer Implementation**:
+   - Create services following DreamService pattern for new entities
+   - Implement CRUD operations and business logic coordination
+   - Add event systems for UI reactivity
+
+3. **Entity Integration**:
+   - Update Dream entity to support Goal relationships
+   - Implement Goal-Plan coordination
+   - Test full entity relationship chain
+
+### Action Item for Next Session
+**PRIORITY**: Ask about habit promotion algorithm design - user provided specific implementation approach that needs to be completed in Plan module.
