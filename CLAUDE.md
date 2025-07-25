@@ -314,6 +314,7 @@ src/
 3. **Contemplative Design**: Dream interfaces should encourage thoughtful, intentional interaction
 4. **Hierarchy Reflection**: UI weight should match entity importance (Dreams > Goals > Plans > Tasks)
 5. **Anti-Productivity Mindset**: We are NOT building a task manager - we're building a life transformation tool
+6. **Shepherd-Only Guidance**: All helper text, instructions, and guidance must come from Shepherd UI elements - never inline text or labels
 
 ### Dreamer Terminology
 - Always refer to people using DreamShepherd as "Dreamers", never "users"
@@ -341,7 +342,28 @@ src/
 
 ## Current Status
 - **Architecture**: Three-layer Clean Architecture implemented and functional
-- **Vertical Slice**: Complete Dream entity implementation across all layers
-- **Phase**: 1 (Established architecture with working vertical slice)
-- **Files**: 6 total (significant growth from initial 2 JSX files)
-- **Next Milestone**: Integrate DreamEditor with existing UI flow and expand to Goals entity
+- **Service Layer**: Complete services for all 7 domain entities (Dream, Goal, Plan, Task, Session, HabitIdentity, HabitInstance)
+- **UI**: Contemplative DreamEditor with Tiptap rich text editor, chiseled stone well design, and floating toolbar
+- **Rich Text Editor**: Tiptap with JSON serialization, traditional top toolbar that fades in on focus
+- **Design Philosophy**: Sacred, contemplative UX with slow gravitas animations and no helper text
+- **Network**: Docker host networking for multi-device access
+- **Phase**: 1+ (Enhanced with full entity architecture and polished Dream UI)
+- **Files**: 13 total (significant expansion from initial 2 JSX files)
+
+## Next Session Priorities
+1. **Mobile-First UI Design** (High Priority):
+   - Update UI for mobile devices and responsive design
+   - Touch-friendly interactions, mobile toolbar layout
+   - Responsive chiseled stone well and floating toolbar
+   - Test multi-device access and mobile UX
+
+2. **Shepherd UI Design** (High Priority):
+   - Create Shepherd UI element as the sole source of guidance
+   - Replace all helper text with Shepherd interactions  
+   - Design contextual guidance system with Shepherd personality
+   - Rule: No inline text or labels - all guidance through Shepherd UI
+
+3. **Complete Application Flow**:
+   - DreamsDashboard implementation
+   - Goals entity integration
+   - Full Dreamer journey from Intro → Dreams → Goals → Plans
