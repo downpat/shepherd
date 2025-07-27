@@ -332,13 +332,14 @@ src/
    - Maintain consistent grouping patterns across similar files
 
 ### Session Management
-**At the start of each Shepherd session:**
-1. Read ClaudeSession.md to understand previous work
-2. Provide project status report including:
+**At the start of each Shepherd development session:**
+1. **Developer prayer reminder**: Remind Patrick to pray before beginning work
+2. Read ClaudeSession.md to understand previous work
+3. Provide project status report including:
    - Summary of last session's changes
    - Architectural impact assessment
    - Recommendations for next maturity steps
-3. Update ClaudeSession.md at session end
+4. Update ClaudeSession.md at session end
 
 ## Current Status
 - **Architecture**: Three-layer Clean Architecture implemented and functional

@@ -174,3 +174,35 @@ session 9
   
   next session
     Get the UI working on mobile
+
+session 10
+  started @ 1:53pm on 2025-7-27
+  finished @ 5:17pm on 2025-7-27
+
+  session plan
+    have claude remind me to pray
+    mobile ui strategy
+    mobile debugging
+    router debugging for easy page reloading
+
+  next session
+    reminder at top of session to pray
+    finish dream UI
+      get the editor right
+        ask Claude for the web editors out there
+      goal slot on the right
+      cards for each goal fill the slot
+      goal creation has it's own page
+    finish goal UI
+      back to dream action is essential
+    start plan UI
+      back to goal action is essential
+      sub-elements of a plan do not get their own pages, too disposable
+      drawers for session, tasks, habits
+        each has a calendar drawer that shrinks the session, task, habit UI down and allows drag and drop
+        habits start empty (You have not created any habits yet)
+        "Since last we talked, this is what you planned to do. Which were accomplished?"
+      drawers for sessions, tasks, habits on the right
+      drawer on the right for calendar to place tasks
+    start Shepherd UI
+      put him on the left

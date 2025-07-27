@@ -27,11 +27,6 @@
   @apply outline-none transition-all resize-y;
 }
 
-.shepherd-intro-textarea {
-  @apply w-full bg-transparent shepherd-dark-blue text-3xl;
-  @apply border-none outline-none resize-none font-semibold;
-  @apply shepherd-blue-cursor;
-}
 
 /* Button Styles */
 .shepherd-primary-button {

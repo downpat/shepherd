@@ -48,13 +48,13 @@ function AnimatedText({text, textSize, delay = 0, onComplete, clearCursor = true
   const getTextSizeClasses = () => {
     switch(textSize) {
       case 'title':
-        return 'text-6xl font-bold shepherd-dark-blue leading-tight'
+        return 'text-4xl sm:text-5xl lg:text-6xl font-bold shepherd-dark-blue leading-tight'
       case 'subtitle':
-        return 'text-3xl font-semibold shepherd-dark-blue leading-relaxed'
+        return 'text-xl sm:text-2xl lg:text-3xl font-semibold shepherd-dark-blue leading-relaxed'
       case 'paragraph':
-        return 'text-lg font-normal shepherd-dark-blue leading-normal'
+        return 'text-base sm:text-lg font-normal shepherd-dark-blue leading-normal'
       default:
-        return 'text-6xl font-bold shepherd-dark-blue leading-tight'
+        return 'text-4xl sm:text-5xl lg:text-6xl font-bold shepherd-dark-blue leading-tight'
     }
   }
 

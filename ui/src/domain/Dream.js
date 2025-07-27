@@ -12,13 +12,14 @@ const generateSlugFromTitle = (title) => {
 };
 
 export const createDream = ({
+  id,
   title = '',
   vision = '',
   goals = [],
   roleModels = []
 }) => {
   return {
-    id: crypto.randomUUID(),
+    id,
     slug: generateSlugFromTitle(title),
     title,
     vision, // Stored as Markdown for WYSIWYG editing
