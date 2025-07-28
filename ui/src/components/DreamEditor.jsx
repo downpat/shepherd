@@ -5,6 +5,8 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu, FloatingMenu } from '@tiptap/react/menus'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
+import DropCursor from '@tiptap/extension-dropcursor'
+import GapCursor from '@tiptap/extension-gapcursor'
 import {
   createDream,
   updateDream,
@@ -31,10 +33,31 @@ const DreamEditor = ({ debugMode = false }) => {
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3]
+          levels: [1, 2, 3],
+          HTMLAttributes: {
+            class: 'heading'
+          }
+        },
+        bulletList: {
+          HTMLAttributes: {
+            class: 'bullet-list'
+          }
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'ordered-list'
+          }
+        },
+        history: {
+          depth: 100,
+          newGroupDelay: 500
         }
       }),
-      Image
+      Image.configure({
+        HTMLAttributes: {
+          class: 'editor-image'
+        }
+      })
     ],
     content: '',
     autofocus: false,
@@ -44,8 +67,7 @@ const DreamEditor = ({ debugMode = false }) => {
         'data-placeholder': 'I envision a life where...'
       },
     },
-    onFocus: () => setIsEditorFocused(true),
-    onBlur: () => setIsEditorFocused(false),
+    onFocus: () => setIsEditorFocused(true)
   })
 
 
@@ -163,7 +185,7 @@ const DreamEditor = ({ debugMode = false }) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center px-4"
+        className="min-h-screen bg-white flex items-center justify-center px-4"
       >
         <div className="text-center">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light shepherd-dark-blue">Loading your dream...</h2>
@@ -177,7 +199,7 @@ const DreamEditor = ({ debugMode = false }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1.2, ease: "easeOut" }}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50"
+      className="min-h-screen bg-white"
     >
       {/* Error Display */}
       {errors.length > 0 && (
@@ -250,9 +272,10 @@ const DreamEditor = ({ debugMode = false }) => {
               from-slate-100
               via-slate-50
               to-slate-200
-              rounded-2xl
-              sm:rounded-3xl
-              p-1 sm:p-2
+              rounded-tl-2xl
+              sm:rounded-tl-3xl
+              pt-1 sm:pt-2
+              pl-1 sm:pl-2
               shadow-[
                 inset_2px_2px_4px_rgba(71,85,105,0.08),
                 inset_-2px_-2px_4px_rgba(255,255,255,0.6)
@@ -265,11 +288,9 @@ const DreamEditor = ({ debugMode = false }) => {
               sm:min-h-[60vh]
             ">
               <div className="
-                bg-gradient-to-br
-                from-white
-                to-slate-50
-                rounded-xl
-                sm:rounded-2xl
+                bg-white
+                rounded-tl-xl
+                sm:rounded-tl-2xl
                 shadow-sm
                 border-t
                 border-t-slate-100/30
@@ -291,6 +312,7 @@ const DreamEditor = ({ debugMode = false }) => {
                     <div className="flex items-center gap-1 flex-nowrap sm:flex-wrap min-w-max sm:min-w-0">
                       {/* Headings */}
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                         className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                           editor.isActive('heading', { level: 1 })
@@ -301,6 +323,7 @@ const DreamEditor = ({ debugMode = false }) => {
                         H1
                       </button>
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                         className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                           editor.isActive('heading', { level: 2 })
@@ -311,6 +334,7 @@ const DreamEditor = ({ debugMode = false }) => {
                         H2
                       </button>
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
                         className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                           editor.isActive('heading', { level: 3 })
@@ -325,6 +349,7 @@ const DreamEditor = ({ debugMode = false }) => {
 
                       {/* Text Formatting */}
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleBold().run()}
                         className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap ${
                           editor.isActive('bold')
@@ -335,6 +360,7 @@ const DreamEditor = ({ debugMode = false }) => {
                         B
                       </button>
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleItalic().run()}
                         className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm italic transition-colors whitespace-nowrap ${
                           editor.isActive('italic')
@@ -345,6 +371,7 @@ const DreamEditor = ({ debugMode = false }) => {
                         I
                       </button>
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleStrike().run()}
                         className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs sm:text-sm line-through transition-colors whitespace-nowrap ${
                           editor.isActive('strike')
@@ -359,6 +386,7 @@ const DreamEditor = ({ debugMode = false }) => {
 
                       {/* Lists */}
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                           editor.isActive('bulletList')
@@ -369,6 +397,7 @@ const DreamEditor = ({ debugMode = false }) => {
                         • List
                       </button>
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleOrderedList().run()}
                         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                           editor.isActive('orderedList')
@@ -383,6 +412,7 @@ const DreamEditor = ({ debugMode = false }) => {
 
                       {/* Block Formatting */}
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().toggleBlockquote().run()}
                         className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                           editor.isActive('blockquote')
@@ -397,6 +427,7 @@ const DreamEditor = ({ debugMode = false }) => {
 
                       {/* Image */}
                       <button
+                        type="button"
                         onClick={() => {
                           const url = prompt('Enter image URL:')
                           if (url) {
@@ -412,6 +443,7 @@ const DreamEditor = ({ debugMode = false }) => {
 
                       {/* Undo/Redo */}
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().undo().run()}
                         disabled={!editor.can().undo()}
                         className="px-3 py-1.5 rounded text-sm font-medium hover:bg-slate-100 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -419,6 +451,7 @@ const DreamEditor = ({ debugMode = false }) => {
                         ↶ Undo
                       </button>
                       <button
+                        type="button"
                         onClick={() => editor.chain().focus().redo().run()}
                         disabled={!editor.can().redo()}
                         className="px-3 py-1.5 rounded text-sm font-medium hover:bg-slate-100 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -431,9 +464,17 @@ const DreamEditor = ({ debugMode = false }) => {
 
                 <EditorContent
                   editor={editor}
-                  className={`px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8 min-h-[calc(50vh-8px)] sm:min-h-[calc(60vh-16px)] prose prose-base sm:prose-lg prose-slate max-w-none focus:outline-none [&_.ProseMirror]:min-h-[calc(50vh-32px)] sm:[&_.ProseMirror]:min-h-[calc(60vh-64px)] [&_.ProseMirror]:focus:outline-none [&_.ProseMirror.ProseMirror-focused]:outline-none ${
-                    isEditorFocused ? 'pt-16 sm:pt-20' : 'pt-4 sm:pt-6 lg:pt-8'
-                  }`}
+                  className={`
+                    px-4 sm:px-6 lg:px-8
+                    pb-4 sm:pb-6 lg:pb-8
+                    min-h-[calc(50vh-8px)] sm:min-h-[calc(60vh-16px)]
+                    max-w-none
+                    focus:outline-none
+                    [&_.ProseMirror]:min-h-[calc(50vh-32px)] sm:[&_.ProseMirror]:min-h-[calc(60vh-64px)]
+                    [&_.ProseMirror]:focus:outline-none
+                    [&_.ProseMirror.ProseMirror-focused]:outline-none
+                    ${isEditorFocused ? 'pt-16 sm:pt-20' : 'pt-4 sm:pt-6 lg:pt-8'}
+                  `}
                 />
               </div>
             </div>
@@ -458,7 +499,21 @@ const DreamEditor = ({ debugMode = false }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-base sm:text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none order-1 sm:order-2"
+              className="
+                w-full sm:w-auto
+                px-8 sm:px-12
+                py-3 sm:py-4
+                shepherd-dark-blue-bg
+                hover:shepherd-blue-bg
+                text-white
+                rounded-lg
+                font-semibold
+                text-base sm:text-lg
+                transition-all
+                transform hover:scale-105
+                disabled:opacity-50 disabled:transform-none
+                order-1 sm:order-2
+              "
             >
               {isSubmitting ? 'Preserving your vision...' : 'Save Dream'}
             </button>

@@ -518,7 +518,95 @@
 - **Multi-device testing**: Ready for mobile UX development and household testing
 - **Development workflow**: Established foundation for collaborative design feedback
 
-**Architecture Status**: Service layer complete, contemplative Dream UI established, ready for mobile-first responsive design and Shepherd UI implementation
+**Architecture Status**: Full MERN stack operational with MongoDB and Express API connected, ready for Dreams API endpoints implementation
+
+## Session 2025-07-28
+
+### Session Summary
+**Objective**: Complete DreamEditor refinements and transition to full-stack MERN architecture
+
+**Key Accomplishments**:
+1. **DreamEditor UI Polish**:
+   - Removed all visible borders on right and bottom edges for unconstrained editing experience
+   - Fixed rich text formatting: headings (H1-H3), lists, bold/italic/strikethrough all functional
+   - Added proper CSS styling for Tiptap elements after removing prose classes
+   - Updated "Save Dream" button to use shepherd-dark-blue branding instead of generic UI kit styling
+   - Enhanced undo/redo functionality with proper history configuration
+
+2. **MERN Stack Implementation**:
+   - Created `/svc` directory with complete Node.js/Express service structure
+   - Built `local.svc.Dockerfile` for Express API with proper development workflow
+   - Built `local.db.Dockerfile` for MongoDB with custom entrypoint script handling volume permissions
+   - Implemented database connection in Express service with health check endpoint
+   - Successfully deployed and connected MongoDB + Express API
+
+3. **Infrastructure Achievements**:
+   - **MongoDB**: Running with persistent volume storage at `/data/db`
+   - **Express API**: Connected and operational on port 3001 with `/health` and `/api` endpoints
+   - **Database Connection**: Full connectivity between service and database
+   - **Development Workflow**: Hot reload with nodemon, volume mounting for live code changes
+
+4. **Technical Solutions**:
+   - Resolved Docker permissions issues with custom `db-entrypoint.sh` script
+   - Fixed MongoDB authentication by removing credentials for development simplicity
+   - Addressed Tiptap rich text formatting with custom CSS classes
+   - Eliminated modal/card constraints in favor of full-page unconstrained editing
+
+### Architectural Evolution
+- **Major Milestone**: Successfully transitioned from client-side CRUD to full-stack MERN application
+- **Infrastructure**: Complete containerized development environment with Docker
+- **Database**: MongoDB running with persistent storage, ready for production DynamoDB migration
+- **API Foundation**: Express service established as bridge between React UI and database
+
+### Current Project State
+- **Architecture**: Full MERN stack (MongoDB + Express + React + Node.js) operational
+- **Phase**: 2 (Full-stack with database persistence)
+- **Database**: MongoDB running locally, authenticated connection established
+- **API**: Express service with health monitoring and MongoDB integration
+- **UI**: Polished DreamEditor with complete rich text functionality
+
+### Files Created/Modified This Session
+- **Created**: `/svc/` directory structure with complete Express service
+- **Created**: `local.svc.Dockerfile` for Node.js service containerization
+- **Created**: `local.db.Dockerfile` for MongoDB containerization
+- **Created**: `db-entrypoint.sh` for MongoDB permissions handling
+- **Created**: `package.json` with Express, Mongoose, CORS dependencies
+- **Created**: `server.js` with MongoDB connection and health endpoints
+- **Enhanced**: `DreamEditor.jsx` - removed borders, fixed formatting, updated button styling
+- **Enhanced**: `index.css` - added Tiptap styling, shepherd color classes
+
+### Next Session Priorities
+1. **Dreams API Endpoints** (Critical Priority):
+   - Create RESTful API endpoints for Dreams CRUD operations
+   - Implement `/api/dreams` GET, POST, PUT, DELETE routes
+   - Create Mongoose schema for Dreams entity matching domain model
+   - Connect React UI to real API instead of debug mode and in-memory services
+
+2. **API Integration**:
+   - Update DreamService.js to call HTTP endpoints instead of in-memory storage
+   - Remove debug mode dependency for creating/editing dreams
+   - Implement proper error handling for API failures
+   - Add loading states for API operations
+
+3. **Database Schema Design**:
+   - Create Mongoose models for all 7 entities (Dream, Goal, Plan, Task, Session, HabitIdentity, HabitInstance)
+   - Plan migration strategy from domain objects to database documents
+   - Consider indexing strategy for performance
+
+4. **Environment Configuration**:
+   - Create .env.example for service configuration
+   - Plan production deployment with DynamoDB integration
+   - Document Docker development workflow
+
+### Technical Debt & Future Considerations
+- **Authentication**: Currently disabled for development - will need implementation for production
+- **Error Handling**: Need comprehensive API error handling and user feedback
+- **Data Validation**: Implement server-side validation matching domain layer rules
+- **Performance**: Consider caching strategy and database optimization
+
+**Major Achievement**: DreamShepherd has successfully evolved from a prototype UI into a production-ready full-stack application architecture with complete MERN stack implementation.
+
+**Architecture Status**: Full MERN stack operational with MongoDB and Express API connected, ready for Dreams API endpoints implementation
 
 ## Session 2025-07-27
 

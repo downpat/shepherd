@@ -10,6 +10,14 @@
   @apply text-blue-800;
 }
 
+.shepherd-dark-blue-bg {
+  @apply bg-blue-900;
+}
+
+.shepherd-blue-bg {
+  @apply bg-blue-800;
+}
+
 .shepherd-blue-cursor {
   caret-color: #1e3a8a; /* blue-900 to match shepherd-dark-blue */
 }
@@ -40,8 +48,44 @@
   @apply hover:bg-blue-700 transition-colors whitespace-nowrap;
 }
 
-/* Tiptap editor placeholder - minimal CSS for functionality */
+/* Tiptap Editor Styles */
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   @apply text-slate-400 italic pointer-events-none float-left;
+}
+
+/* Heading Styles */
+.ProseMirror h1.heading {
+  @apply text-3xl font-bold mb-4 mt-6 text-slate-800;
+}
+
+.ProseMirror h2.heading {
+  @apply text-2xl font-semibold mb-3 mt-5 text-slate-800;
+}
+
+.ProseMirror h3.heading {
+  @apply text-xl font-medium mb-2 mt-4 text-slate-800;
+}
+
+/* List Styles */
+.ProseMirror ul.bullet-list {
+  @apply list-disc ml-6 mb-4 space-y-1;
+}
+
+.ProseMirror ol.ordered-list {
+  @apply list-decimal ml-6 mb-4 space-y-1;
+}
+
+.ProseMirror li {
+  @apply mb-1;
+}
+
+/* Blockquote Styles */
+.ProseMirror blockquote {
+  @apply border-l-4 border-slate-300 pl-4 italic my-4 text-slate-600;
+}
+
+/* Image Styles */
+.ProseMirror img.editor-image {
+  @apply max-w-full h-auto rounded-lg shadow-sm my-4;
 }

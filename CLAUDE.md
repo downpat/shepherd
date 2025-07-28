@@ -331,6 +331,28 @@ src/
    - Group related functionality together (all state, all event handlers, etc.)
    - Maintain consistent grouping patterns across similar files
 
+### Error Handling & Defensive Programming Philosophy
+DreamShepherd follows a defensive programming approach with extensive error handling throughout the application stack.
+
+**Core Principles**:
+1. **Layered Error Messages**: Errors propagate through the architecture layers (Domain → Service → UI) with context added at each level for easy stack tracing
+2. **Defensive by Design**: Extensive input validation, null checks, and boundary protection throughout the codebase
+3. **Fail Gracefully**: When errors occur, provide meaningful feedback and graceful degradation rather than crashes
+4. **Wait to Barricade**: We defer heavy assertions and rigid boundary enforcement until demo users provide feedback on actual failure patterns
+
+**Implementation Strategy**:
+- **Domain Layer**: Comprehensive validation with detailed error messages
+- **Service Layer**: Business logic protection with contextual error enrichment
+- **UI Layer**: User-friendly error presentation with fallback states
+- **Future Evolution**: After user testing, we'll identify where to "Barricade the Boundaries" (McConnell) with stricter validation
+
+**Not Currently Implemented**:
+- Heavy assertion libraries or Design by Contract methodologies
+- Test-Driven Development as primary development approach
+- Production assertion removal or performance-optimized error checking
+
+This approach prioritizes reliability and debuggability while maintaining development velocity and allowing organic evolution based on real user feedback.
+
 ### Session Management
 **At the start of each Shepherd development session:**
 1. **Developer prayer reminder**: Remind Patrick to pray before beginning work

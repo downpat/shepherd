@@ -9,6 +9,8 @@
     "preview": "vite preview --config ./conf/vite.config.js"
   },
   "dependencies": {
+    "@tiptap/extension-dropcursor": "^3.0.7",
+    "@tiptap/extension-gapcursor": "^3.0.7",
     "@tiptap/extension-image": "^3.0.7",
     "@tiptap/pm": "^3.0.7",
     "@tiptap/react": "^3.0.7",

@@ -206,3 +206,37 @@ session 10
       drawer on the right for calendar to place tasks
     start Shepherd UI
       put him on the left
+
+session 11
+  started @ 2:23 on 2025-7-28
+
+  session plan
+    pray
+    defensive programming thoughts
+    finish dream UI
+      get the editor right
+        ask Claude for the web editors out there
+    elminate "starter-pack" colors, like on buttons
+    setup full MERN app
+
+  next session
+    consider compose file
+    finish dream ui
+      goal slot on the right
+      cards for each goal fill the slot
+      goal creation has it's own page
+    intro page
+      enter button should submit input
+    finish goal UI
+      back to dream action is essential
+    start plan UI
+      back to goal action is essential
+      sub-elements of a plan do not get their own pages, too disposable
+      drawers for session, tasks, habits
+        each has a calendar drawer that shrinks the session, task, habit UI down and allows drag and drop
+        habits start empty (You have not created any habits yet)
+        "Since last we talked, this is what you planned to do. Which were accomplished?"
+      drawers for sessions, tasks, habits on the right
+      drawer on the right for calendar to place tasks
+    start Shepherd UI
+      put him on the left
