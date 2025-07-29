@@ -692,3 +692,74 @@
 - **Responsive Development**: Mobile-first approach with desktop enhancement
 
 **Key Insight**: Sometimes defensive programming and extensive error checking creates more problems than it solves. Simpler, more predictable code paths often lead to fewer bugs and easier debugging.
+
+## Session 2025-07-29
+
+### Session Summary
+**Objective**: Update CLAUDE.md with backend architecture and discuss infrastructure orchestration strategy
+
+**Key Accomplishments**:
+1. **Architecture Documentation Update**:
+   - Updated CLAUDE.md to reflect new backend services from previous session
+   - Added Node.js/Express API service (Port 3001) and MongoDB database (Port 27017) to tech stack
+   - Updated repository structure to include `/svc/` directory with backend files
+   - Enhanced Docker setup documentation for multi-service architecture
+   - Updated current status to reflect full-stack architecture with 20+ files
+
+2. **Infrastructure Strategy Discussion**:
+   - **Local Development**: Evaluated Docker Compose for multi-container orchestration
+   - **Production Strategy**: Discussed Terraform/OpenTofu for AWS infrastructure (ECS/Fargate for API, DynamoDB for persistence, S3/CloudFront for UI)
+   - **Data Layer Consideration**: Identified need for repository abstraction to switch from MongoDB (local) to DynamoDB (production)
+   - **Decision**: Manual orchestration for now since API/database are not mature enough for formal orchestration
+
+### Architectural Planning Made
+1. **Phased Approach Established**:
+   - **Phase 2a**: Add `docker-compose.yml` for local development (future)
+   - **Phase 2b**: Abstract data access layer with Repository pattern (future)  
+   - **Phase 3**: Add Terraform/OpenTofu for AWS production infrastructure (future)
+
+2. **Environment Strategy**:
+   - **Local**: Docker containers with MongoDB for rapid development
+   - **Production**: AWS managed services (ECS, DynamoDB, S3/CloudFront) for scalability
+   - **Trade-off Accepted**: Local/production database differences outweighed by managed service benefits
+
+### Current Project State
+- **Architecture**: Full-stack with separate frontend/backend services ready for orchestration
+- **Backend Infrastructure**: Node.js/Express API with MongoDB integration, health endpoints
+- **Frontend**: React UI with Tiptap editor, contemplative design philosophy
+- **Phase**: 1+ (Enhanced full-stack, ready for API integration priority)
+- **Next Priority**: Backend API integration to replace localStorage with persistent MongoDB storage
+
+### Files Modified This Session
+- **Updated**: `CLAUDE.md` - Architecture section updated with backend services, Docker setup, repository structure, current status, and priorities reordered
+
+### Infrastructure Strategy Documented
+**Local Development Pattern**:
+- Docker Compose for simplified multi-container orchestration
+- Better service discovery and dependency management
+- Single `docker-compose up` command for entire stack
+
+**Production Pattern**: 
+- Terraform/OpenTofu Infrastructure as Code
+- AWS ECS/Fargate for containerized API service
+- DynamoDB for managed persistence layer  
+- S3/CloudFront for static UI hosting and CDN
+
+**Implementation Timeline**:
+- **Current**: Manual Docker orchestration (sufficient for development)
+- **Future Phase 2**: Docker Compose + Repository abstraction
+- **Future Phase 3**: Terraform + AWS production deployment
+
+### Next Session Recommendations
+1. **Backend API Integration** (Critical Priority):
+   - Implement Dreams CRUD endpoints with MongoDB persistence
+   - Connect frontend DreamService to HTTP API calls
+   - Replace localStorage with persistent database storage
+   - Add proper error handling for network requests
+
+2. **Complete Application Architecture**:
+   - Full backend API integration testing
+   - Dreams Dashboard implementation  
+   - Mobile-responsive design completion
+
+**Status**: Ready for backend API integration to complete the full-stack MERN architecture implementation.

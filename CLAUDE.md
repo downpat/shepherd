@@ -6,15 +6,27 @@ Shepherd is a Summer 2025 side project that synthesizes personal psychology rese
 ## Repository Structure
 - `/claude/shepherd/app-repo/` - Main application repository
 - `/claude/shepherd/app-repo/ui/` - React UI application
-- `/claude/shepherd/app-repo/ui/local.Dockerfile` - Docker configuration for local development
+- `/claude/shepherd/app-repo/ui/local.Dockerfile` - Docker configuration for UI
 - `/claude/shepherd/app-repo/ui/conf/` - Configuration files (vite, tailwind, postcss)
+- `/claude/shepherd/app-repo/svc/` - Backend API service (Node.js/Express)
+- `/claude/shepherd/app-repo/svc/local.svc.Dockerfile` - Docker configuration for API service
+- `/claude/shepherd/app-repo/svc/local.db.Dockerfile` - Docker configuration for MongoDB
+- `/claude/shepherd/app-repo/svc/db-entrypoint.sh` - MongoDB initialization script
 - `README.md` - Project description
 - `LICENSE` - Project license
 
 ## Docker Setup
-- Build context should be the ui directory
-- Dev server runs on port 5173
+
+### Frontend (UI)
+- Build context: `ui/` directory
+- Dev server: port 5173
 - Build command: `cd ui && docker build -f local.Dockerfile -t shepherd-ui ./`
+
+### Backend Services
+- **API Service**: `cd svc && docker build -f local.svc.Dockerfile -t shepherd-svc ./`
+- **Database**: `cd svc && docker build -f local.db.Dockerfile -t shepherd-db ./`
+- **MongoDB**: Port 27017 with auth (dreamshepherd/shepherd_dev_pass)
+- **Express API**: Port 3001 with CORS enabled for frontend
 
 ## Development Notes
 - Project is in early stages
@@ -25,7 +37,9 @@ Shepherd is a Summer 2025 side project that synthesizes personal psychology rese
 (To be updated as project develops)
 
 ## Architecture & Tech Stack
-- **Frontend**: React + Vite + Tailwind CSS + Shadcn/ui
+- **Frontend**: React + Vite + Tailwind CSS + Shadcn/ui (Port 5173)
+- **Backend API**: Node.js + Express + Mongoose (Port 3001)  
+- **Database**: MongoDB Community Server (Port 27017)
 - **Build Tool**: Vite with config in `ui/conf/vite.config.js`
 - **Styling**: Tailwind CSS with config in `ui/conf/tailwind.config.js`
 - **PostCSS**: Config in `ui/conf/postcss.config.js`
@@ -225,7 +239,9 @@ Habits are presented as one thing to users but implemented as two entities:
 - Promotes items that demonstrate consistent routine behavior
 
 ### Entity Relationships
-- **Dream** → **Goal** (one-to-many, loosely coupled)
+- **IntroDreamer** → **Dreamer** (upgrade path, preserves context)
+- **Dreamer** → **Dream** (one-to-many, ownership)
+- **Dream** → **Goal** (one-to-many, loosely coupled)  
 - **Goal** → **Plan** (one-to-one)
 - **Plan** → **Tasks/Sessions** (one-to-many)
 - **HabitIdentity** → **HabitInstance** → **Task** (habit system)
@@ -242,12 +258,19 @@ Habits are presented as one thing to users but implemented as two entities:
 ### Core Principle: Dependencies Point Inward
 We follow Clean Architecture principles without strict layer enforcement, allowing the project to mature organically.
 
-### Current Structure (Phase 1)
+### Current Structure (Phase 1+)
 ```
-src/
-├── components/           # UI layer (React components)
-├── domain/              # Business logic (pure functions/objects)
-└── services/            # External concerns (storage, API, coordination)
+app-repo/
+├── ui/src/
+│   ├── components/      # UI layer (React components)
+│   ├── domain/          # Business logic (pure functions/objects)
+│   └── services/        # Frontend services (local storage, coordination)
+└── svc/
+    ├── models/          # Mongoose ODM schemas (IntroDreamer, Dreamer, Dream)
+    ├── services/        # Backend business logic (UpgradeService)
+    ├── routes/          # Express API endpoints
+    ├── server.js        # Express API server
+    └── Dockerfiles      # Backend containerization
 ```
 
 ### Three-Layer Architecture Details
@@ -303,6 +326,12 @@ src/
 
 ## Development Guidelines
 
+### Docker Environment Rules
+- **Claude is in a Docker container** and cannot directly modify other containers
+- **API Service Dependencies**: User must run `npm install` commands in the API container
+- **Database Commands**: User must handle database container operations
+- **File System**: Claude can only modify files in the shared `/claude/shepherd/app-repo/` directory
+
 ### Keep It Simple Rules
 - Start with functions before classes
 - Use plain objects before complex state management
@@ -316,9 +345,17 @@ src/
 5. **Anti-Productivity Mindset**: We are NOT building a task manager - we're building a life transformation tool
 6. **Shepherd-Only Guidance**: All helper text, instructions, and guidance must come from Shepherd UI elements - never inline text or labels
 
+### Two-Model Authentication UX
+7. **Low-Friction Sacred Entry**: IntroDreamer model allows immediate Dream creation with just email + title/vision
+8. **Contemplative Scheduling**: Honor Dreamer's request for contemplative timing with reminder system
+9. **Seamless Upgrade Path**: IntroDreamer → Dreamer transition preserves all sacred Dream content and context
+10. **Registration Gate for Goals**: Full registration required before creating first Goal (natural progression point)
+11. **Preserve Journey Context**: Original creation dates and upgrade history maintain continuity of Dreamer's journey
+
 ### Dreamer Terminology
 - Always refer to people using DreamShepherd as "Dreamers", never "users"
-- This reflects the aspirational, intentional nature of the application
+- "IntroDreamers" for those in the lightweight pre-registration phase
+- This terminology reflects the aspirational, intentional nature of the application at every stage
 
 ### Code Organization Rules
 1. **Group by Relationship, Then Alphabetize**:
@@ -364,29 +401,37 @@ This approach prioritizes reliability and debuggability while maintaining develo
 4. Update ClaudeSession.md at session end
 
 ## Current Status
-- **Architecture**: Three-layer Clean Architecture implemented and functional
-- **Service Layer**: Complete services for all 7 domain entities (Dream, Goal, Plan, Task, Session, HabitIdentity, HabitInstance)
+- **Architecture**: Three-layer Clean Architecture with separate frontend/backend services
+- **Frontend Services**: Complete services for all 7 domain entities (Dream, Goal, Plan, Task, Session, HabitIdentity, HabitInstance)
+- **Backend API**: Node.js/Express server with MongoDB integration, health endpoints, CORS enabled
+- **Database**: MongoDB Community Server with Docker containerization and custom entrypoint
 - **UI**: Contemplative DreamEditor with Tiptap rich text editor, chiseled stone well design, and floating toolbar
 - **Rich Text Editor**: Tiptap with JSON serialization, traditional top toolbar that fades in on focus
 - **Design Philosophy**: Sacred, contemplative UX with slow gravitas animations and no helper text
-- **Network**: Docker host networking for multi-device access
-- **Phase**: 1+ (Enhanced with full entity architecture and polished Dream UI)
-- **Files**: 13 total (significant expansion from initial 2 JSX files)
+- **Network**: Docker host networking for multi-device access across UI (5173), API (3001), DB (27017)
+- **Phase**: 1+ (Enhanced with full-stack architecture and backend services)
+- **Files**: 20+ total (significant expansion with backend infrastructure)
 
 ## Next Session Priorities
-1. **Mobile-First UI Design** (High Priority):
+1. **Backend API Integration** (High Priority):
+   - Connect frontend services to backend API endpoints
+   - Implement Dream CRUD operations with MongoDB persistence
+   - Replace localStorage with API calls in DreamService
+   - Add error handling for network requests
+
+2. **Mobile-First UI Design** (High Priority):
    - Update UI for mobile devices and responsive design
    - Touch-friendly interactions, mobile toolbar layout
    - Responsive chiseled stone well and floating toolbar
    - Test multi-device access and mobile UX
 
-2. **Shepherd UI Design** (High Priority):
+3. **Shepherd UI Design** (High Priority):
    - Create Shepherd UI element as the sole source of guidance
    - Replace all helper text with Shepherd interactions  
    - Design contextual guidance system with Shepherd personality
    - Rule: No inline text or labels - all guidance through Shepherd UI
 
-3. **Complete Application Flow**:
+4. **Complete Application Flow**:
    - DreamsDashboard implementation
    - Goals entity integration
    - Full Dreamer journey from Intro → Dreams → Goals → Plans

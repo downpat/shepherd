@@ -1,10 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const dreamRoutes = require('./routes/dreams');
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://192.168.0.133:27017/dreamshepherd';
@@ -18,9 +23,22 @@ mongoose.connect(MONGODB_URI)
   process.exit(1);
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Security middleware
+app.use(helmet());
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.CLIENT_ORIGIN 
+    : ['http://localhost:5173', 'http://192.168.0.133:5173'], // Vite dev server
+  credentials: true, // Allow cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' })); // Increased limit for rich text content
+app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -33,14 +51,33 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes placeholder
+// API routes
+app.use('/auth', authRoutes);
+app.use('/api/dreams', dreamRoutes);
+
+// API root endpoint
 app.get('/api', (req, res) => {
   res.json({
     message: 'DreamShepherd API',
     version: '1.0.0',
     endpoints: {
       health: '/health',
-      dreams: '/api/dreams'
+      auth: {
+        intro: 'POST /auth/intro',
+        register: 'POST /auth/register', 
+        login: 'POST /auth/login',
+        refresh: 'POST /auth/refresh',
+        logout: 'POST /auth/logout',
+        me: 'GET /auth/me'
+      },
+      dreams: {
+        list: 'GET /api/dreams',
+        get: 'GET /api/dreams/:slug',
+        create: 'POST /api/dreams',
+        update: 'PUT /api/dreams/:slug',
+        delete: 'DELETE /api/dreams/:slug',
+        stats: 'GET /api/dreams/:slug/stats'
+      }
     }
   });
 });

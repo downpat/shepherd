@@ -209,6 +209,7 @@ session 10
 
 session 11
   started @ 2:23 on 2025-7-28
+  finished ~5:00pm on 2025-7-28
 
   session plan
     pray
@@ -240,3 +241,40 @@ session 11
       drawer on the right for calendar to place tasks
     start Shepherd UI
       put him on the left
+
+session 12
+  started @ 12:56pm on 2025-7-29
+  stopped @ 1:05pm for personal matter
+  re-started @ 1:27pm
+
+  session plan
+    pray
+    get svc running
+      authentication
+      models
+      api controllers
+    consider compose file
+    finish dream ui
+      goal slot on the right
+      cards for each goal fill the slot
+      goal creation has it's own page
+    intro page
+      enter button should submit input
+    finish goal UI
+      back to dream action is essential
+    start plan UI
+      back to goal action is essential
+      sub-elements of a plan do not get their own pages, too disposable
+      drawers for session, tasks, habits
+        each has a calendar drawer that shrinks the session, task, habit UI down and allows drag and drop
+        habits start empty (You have not created any habits yet)
+        "Since last we talked, this is what you planned to do. Which were accomplished?"
+      drawers for sessions, tasks, habits on the right
+      drawer on the right for calendar to place tasks
+    start Shepherd UI
+      put him on the left
+
+  next session
+    pray
+    Update API endpoints to make error handling more DRY
+    Add boolean to DRY error handling so stack traces can be kept out or HTTP responses
