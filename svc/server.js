@@ -12,7 +12,7 @@ const authRoutes = require('./routes/auth');
 const dreamRoutes = require('./routes/dreams');
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://192.168.0.133:27017/dreamshepherd';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://shepherd-db:27017/dreamshepherd';
 
 mongoose.connect(MONGODB_URI)
 .then(() => {
@@ -28,8 +28,8 @@ app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CLIENT_ORIGIN 
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.CLIENT_ORIGIN
     : ['http://localhost:5173', 'http://192.168.0.133:5173'], // Vite dev server
   credentials: true, // Allow cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -64,7 +64,7 @@ app.get('/api', (req, res) => {
       health: '/health',
       auth: {
         intro: 'POST /auth/intro',
-        register: 'POST /auth/register', 
+        register: 'POST /auth/register',
         login: 'POST /auth/login',
         refresh: 'POST /auth/refresh',
         logout: 'POST /auth/logout',

@@ -9,6 +9,8 @@ const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
+const config = require('../conf/default');
+
 const dreamerSchema = new mongoose.Schema({
   // === CORE AUTHENTICATION ===
   email: {
@@ -17,42 +19,42 @@ const dreamerSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid email']
   },
-  
+
   password: {
     type: String,
     required: [true, 'Password is required'],
     minlength: [8, 'Password must be at least 8 characters'],
     select: false // Exclude from queries by default
   },
-  
+
   // === ACCOUNT MANAGEMENT ===
   isEmailVerified: {
     type: Boolean,
     default: false
   },
-  
+
   emailVerificationToken: String,
   emailVerificationExpires: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
-  
+
   // === SECURITY ===
   loginAttempts: {
     type: Number,
     default: 0
   },
-  
+
   lockUntil: Date,
   lastLogin: Date,
-  
+
   // JWT token versioning for revocation
   tokenVersion: {
     type: Number,
     default: 0
   },
-  
+
   // === DREAMER PROFILE (Sacred Context) ===
   profile: {
     firstName: {
@@ -60,30 +62,30 @@ const dreamerSchema = new mongoose.Schema({
       trim: true,
       maxlength: [50, 'First name cannot exceed 50 characters']
     },
-    
+
     lastName: {
       type: String,
       trim: true,
       maxlength: [50, 'Last name cannot exceed 50 characters']
     },
-    
+
     displayName: {
       type: String,
       trim: true,
       maxlength: [100, 'Display name cannot exceed 100 characters']
     },
-    
+
     avatar: String, // Future: profile image URL
-    
+
     // Personal Development Context
     onboardingCompleted: {
       type: Boolean,
       default: false
     },
-    
+
     introCompletedAt: Date,
     journeyStartedAt: Date,
-    
+
     // Contemplative UX Preferences
     preferences: {
       theme: {
@@ -91,26 +93,26 @@ const dreamerSchema = new mongoose.Schema({
         enum: ['light', 'dark', 'auto'],
         default: 'light'
       },
-      
+
       animationSpeed: {
         type: String,
         enum: ['slow', 'normal', 'fast'],
         default: 'slow' // For contemplative gravitas
       },
-      
+
       shepherdPersonality: {
         type: String,
         enum: ['gentle', 'encouraging', 'wise'],
         default: 'gentle'
       },
-      
+
       notifications: {
         type: Boolean,
         default: true
       }
     }
   },
-  
+
   // === UPGRADE CONTEXT (for IntroDreamer migrations) ===
   upgradedFrom: {
     introDreamerId: String, // Reference to original IntroDreamer
@@ -121,34 +123,34 @@ const dreamerSchema = new mongoose.Schema({
       default: Date.now
     }
   },
-  
+
   // === DATA RELATIONSHIPS (Denormalized for Performance) ===
   dreamCount: {
     type: Number,
     default: 0
   },
-  
+
   goalCount: {
     type: Number,
     default: 0
   },
-  
+
   activeHabits: {
     type: Number,
     default: 0
   },
-  
+
   // === AUDIT ===
   createdAt: {
     type: Date,
     default: Date.now
   },
-  
+
   updatedAt: {
     type: Date,
     default: Date.now
   },
-  
+
   lastActiveAt: {
     type: Date,
     default: Date.now
@@ -168,7 +170,7 @@ dreamerSchema.index({ 'upgradedFrom.introDreamerId': 1 });
 dreamerSchema.pre('save', async function(next) {
   // Only hash password if it's been modified
   if (!this.isModified('password')) return next();
-  
+
   try {
     // Argon2id hashing with OWASP recommended parameters
     this.password = await argon2.hash(this.password, {
@@ -203,8 +205,8 @@ dreamerSchema.methods.generateAccessToken = function() {
       tokenVersion: this.tokenVersion,
       type: 'access'
     },
-    process.env.JWT_ACCESS_SECRET,
-    { 
+    config.jwt_access_secret,
+    {
       expiresIn: '15m',
       issuer: 'dreamshepherd',
       audience: 'dreamshepherd-api'
@@ -220,8 +222,8 @@ dreamerSchema.methods.generateRefreshToken = function() {
       tokenVersion: this.tokenVersion,
       type: 'refresh'
     },
-    process.env.JWT_REFRESH_SECRET,
-    { 
+    config.jwt_refresh_secret,
+    {
       expiresIn: '7d',
       issuer: 'dreamshepherd',
       audience: 'dreamshepherd-api'
@@ -232,28 +234,28 @@ dreamerSchema.methods.generateRefreshToken = function() {
 // Create password reset token
 dreamerSchema.methods.createPasswordResetToken = function() {
   const resetToken = crypto.randomBytes(32).toString('hex');
-  
+
   this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-    
+
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-  
+
   return resetToken;
 };
 
 // Create email verification token
 dreamerSchema.methods.createEmailVerificationToken = function() {
   const verificationToken = crypto.randomBytes(32).toString('hex');
-  
+
   this.emailVerificationToken = crypto
     .createHash('sha256')
     .update(verificationToken)
     .digest('hex');
-    
+
   this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-  
+
   return verificationToken;
 };
 
@@ -266,7 +268,7 @@ dreamerSchema.methods.isLocked = function() {
 dreamerSchema.methods.incLoginAttempts = function() {
   const maxAttempts = 5;
   const lockTime = 2 * 60 * 60 * 1000; // 2 hours
-  
+
   // Already locked
   if (this.lockUntil && this.lockUntil < Date.now()) {
     return this.updateOne({
@@ -274,14 +276,14 @@ dreamerSchema.methods.incLoginAttempts = function() {
       $set: { loginAttempts: 1 }
     });
   }
-  
+
   const updates = { $inc: { loginAttempts: 1 } };
-  
+
   // Lock account after max attempts
   if (this.loginAttempts + 1 >= maxAttempts) {
     updates.$set = { lockUntil: Date.now() + lockTime };
   }
-  
+
   return this.updateOne(updates);
 };
 
@@ -311,7 +313,7 @@ dreamerSchema.methods.toSafeObject = function() {
     createdAt: this.createdAt,
     lastActiveAt: this.lastActiveAt
   };
-  
+
   // Include upgrade context if available
   if (this.upgradedFrom) {
     obj.upgradedFrom = {
@@ -319,7 +321,7 @@ dreamerSchema.methods.toSafeObject = function() {
       upgradedAt: this.upgradedFrom.upgradedAt
     };
   }
-  
+
   return obj;
 };
 
@@ -333,7 +335,7 @@ dreamerSchema.statics.findByEmail = function(email) {
 // Find by password reset token
 dreamerSchema.statics.findByPasswordResetToken = function(token) {
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-  
+
   return this.findOne({
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() }
@@ -343,7 +345,7 @@ dreamerSchema.statics.findByPasswordResetToken = function(token) {
 // Find by email verification token
 dreamerSchema.statics.findByEmailVerificationToken = function(token) {
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-  
+
   return this.findOne({
     emailVerificationToken: hashedToken,
     emailVerificationExpires: { $gt: Date.now() }

@@ -13,7 +13,8 @@ const introDreamerSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Email is required for reminders'],
     lowercase: true,
-    trim: true
+    trim: true,
+    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid email']
   },
 
   // Session token for returning without password

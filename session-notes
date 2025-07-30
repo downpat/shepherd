@@ -246,6 +246,7 @@ session 12
   started @ 12:56pm on 2025-7-29
   stopped @ 1:05pm for personal matter
   re-started @ 1:27pm
+  finished @ 4:29pm
 
   session plan
     pray
@@ -254,6 +255,13 @@ session 12
       models
       api controllers
     consider compose file
+      not yet. setup is too simple at the moment
+
+  next session
+    pray
+    finish debugging new endpoints with integration script
+    Update API endpoints to make error handling more DRY
+    Add boolean to DRY error handling so stack traces can be kept out or HTTP responses
     finish dream ui
       goal slot on the right
       cards for each goal fill the slot
@@ -274,7 +282,15 @@ session 12
     start Shepherd UI
       put him on the left
 
-  next session
+session 13
+  started @ 10:23am on 2025-7-30
+
+  this was a weird session, internet was buggy,
+  i did a bunch of other things at the same time
+  it's not really a clean example of work session
+
+  finished @ 2:54pm
+
+  session plan
     pray
-    Update API endpoints to make error handling more DRY
-    Add boolean to DRY error handling so stack traces can be kept out or HTTP responses
+    finish debugging new endpoints with integration script

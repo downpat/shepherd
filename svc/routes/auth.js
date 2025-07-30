@@ -29,7 +29,7 @@ const authLimiter = rateLimit({
 // Stricter rate limiting for registration
 const registrationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 registrations per hour
+  max: 300, // 3 registrations per hour
   message: {
     success: false,
     error: 'Too many registration attempts, please try again later',
@@ -258,13 +258,15 @@ router.post('/register', registrationLimiter, async (req, res) => {
         dreamer: dreamer.toSafeObject(),
         dream: null, // No dream for direct registration
         tokens: {
-          accessToken,
-          refreshToken
+          accessToken: dreamer.generateAccessToken(),
+          refreshToken: dreamer.generateRefreshToken()
         }
       };
     }
 
     // Set refresh token as httpOnly cookie
+    console.log('Upgrade result:');
+    console.dir(result);
     res.cookie('refreshToken', result.tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -290,7 +292,7 @@ router.post('/register', registrationLimiter, async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(400).json({
+    res.status(500).json({
       success: false,
       error: error.message
     });

@@ -12,7 +12,7 @@ const dreamSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  
+
   // === OWNERSHIP ===
   dreamerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -20,41 +20,41 @@ const dreamSchema = new mongoose.Schema({
     ref: 'Dreamer',
     index: true // Index for fast owner lookups
   },
-  
+
   // === DREAM DATA ===
   slug: {
     type: String,
     required: true,
     index: true // Index for lookups (scoped per dreamer, not globally unique)
   },
-  
+
   title: {
     type: String,
     required: true,
     maxLength: 200 // Match frontend validation
   },
-  
+
   vision: {
     type: String, // Store Tiptap JSON as string
     default: ''
   },
-  
+
   goals: [{
     type: String, // Array of Goal IDs
     ref: 'Goal'
   }],
-  
+
   roleModels: [{
-    type: String, // Array of RoleModel IDs  
+    type: String, // Array of RoleModel IDs
     ref: 'RoleModel'
   }],
-  
+
   // === AUDIT ===
   createdAt: {
     type: Date,
     default: Date.now
   },
-  
+
   updatedAt: {
     type: Date,
     default: Date.now
@@ -74,8 +74,8 @@ dreamSchema.index({ dreamerId: 1, createdAt: -1 }); // Oldest dreams per dreamer
 // === MIDDLEWARE ===
 
 // Pre-save middleware to generate slug from title
-dreamSchema.pre('save', function(next) {
-  if (this.isModified('title')) {
+dreamSchema.pre('validate', function(next) {
+  if (this.isNew || this.isModified('title')) {
     this.slug = this.title
       .toLowerCase()
       .replace(/\s+/g, '-')
@@ -123,17 +123,17 @@ dreamSchema.statics.createForDreamer = function(dreamData, dreamerId) {
 // Find dreams by dreamer ID
 dreamSchema.statics.findByDreamer = function(dreamerId, options = {}) {
   const query = this.find({ dreamerId });
-  
+
   if (options.sort) {
     query.sort(options.sort);
   } else {
     query.sort({ updatedAt: -1 }); // Default: most recently updated first
   }
-  
+
   if (options.limit) {
     query.limit(options.limit);
   }
-  
+
   return query;
 };
 
