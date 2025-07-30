@@ -9,7 +9,10 @@ const rateLimit = require('express-rate-limit');
 const IntroDreamer = require('../models/IntroDreamer');
 const Dreamer = require('../models/Dreamer');
 const UpgradeService = require('../services/UpgradeService');
+const { authenticateToken } = require('../middleware/auth');
+const config = require('../conf/default');
 const router = express.Router();
+
 
 // === RATE LIMITING ===
 
@@ -265,8 +268,6 @@ router.post('/register', registrationLimiter, async (req, res) => {
     }
 
     // Set refresh token as httpOnly cookie
-    console.log('Upgrade result:');
-    console.dir(result);
     res.cookie('refreshToken', result.tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -396,7 +397,7 @@ router.post('/refresh', async (req, res) => {
     let payload;
 
     try {
-      payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      payload = jwt.verify(refreshToken, config.jwt_refresh_secret);
     } catch (error) {
       return res.status(403).json({
         success: false,
@@ -452,7 +453,7 @@ router.post('/logout', async (req, res) => {
       // Decode token to get dreamer ID
       const jwt = require('jsonwebtoken');
       try {
-        const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const payload = jwt.verify(refreshToken, config.jwt_refresh_secret);
         const dreamer = await Dreamer.findById(payload.dreamerId);
 
         if (dreamer) {
@@ -484,7 +485,7 @@ router.post('/logout', async (req, res) => {
 });
 
 // GET /auth/me - Get current dreamer info (requires authentication)
-router.get('/me', async (req, res) => {
+router.get('/me', authenticateToken, async (req, res) => {
   try {
     // This route will be protected by auth middleware
     const dreamer = req.dreamer; // Set by auth middleware

@@ -2,10 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-require('dotenv').config();
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+app.use(cookieParser());
 
 // Import routes
 const authRoutes = require('./routes/auth');
