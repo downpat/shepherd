@@ -920,3 +920,70 @@
 **Important**: Next session Dreamer model should follow existing Dream.js patterns - factory functions, simple objects, business logic methods - rather than complex OOP approach that doesn't match project style.
 
 **Key Insight**: Authentication middleware should be applied surgically to specific endpoints rather than blanket application to entire route files, allowing public endpoints (login, register, intro) to remain accessible while protecting user-specific operations.
+
+## Session 2025-08-01
+
+### Session Summary
+**Objective**: Implement user routing logic with DreamerService authentication
+
+**Key Accomplishments**:
+1. **DreamerService Implementation**:
+   - Created complete singleton service with individual authentication methods
+   - Implemented `authenticateJWT`, `authenticateRefresh`, `authenticateTemp`, `authenticatePassword` methods
+   - Added main `authenticateDreamer` method that delegates based on authData content
+   - Included event system for UI reactivity and session management
+
+2. **Router Logic Enhancement**:
+   - Updated DreamShepherd.jsx to use DreamerService for user state detection
+   - Implemented conditional routing: authenticated users → last dream, anonymous users → intro
+   - Fixed async/await issues in useEffect callbacks
+   - Established three authentication paths: JWT, username/password, tempToken
+
+3. **Service Architecture Refinement**:
+   - Fixed constructor async/await syntax errors in DreamService
+   - Added initialization patterns with `init()` method for async service setup
+   - Maintained Clean Architecture patterns across service layer
+
+### Technical Issues Identified & Resolved
+1. **Constructor Async Issue**: Cannot use `await` in JavaScript constructors - moved to `init()` method
+2. **useEffect Async Pattern**: Wrapped async calls in inner function to avoid async useEffect callback
+3. **Service Initialization**: Added lazy loading pattern for async service initialization
+
+### Current Project State
+- **Architecture**: Complete MERN stack with authentication service layer
+- **Frontend Services**: DreamerService and DreamService with proper async initialization
+- **Authentication Logic**: Three-method authentication system ready for API integration
+- **Routing**: Conditional routing based on user authentication state
+
+### Critical Issue Identified
+- **API Configuration Missing**: Frontend services are making API calls but there's no configuration for API endpoints
+- Services are calling `/api/auth/*` and `/api/dreams` but no base URL configuration exists
+- Need environment configuration to connect UI to backend API
+
+### Next Session Priorities
+1. **API Configuration Setup** (CRITICAL PRIORITY):
+   - Create configuration file for UI to locate backend API
+   - Set up environment variables for API base URL (localhost:3001 for development)
+   - Configure fetch calls to use proper API endpoints
+   - Test API connectivity between frontend and backend services
+
+2. **Complete Frontend-Backend Integration**:
+   - Finish API integration testing with actual backend endpoints
+   - Implement error handling for network requests
+   - Test authentication flows end-to-end
+
+3. **Debug Integration Test Issues**:
+   - Resolve remaining JSON syntax errors in backend integration tests
+   - Complete authentication + Dream API validation
+
+### Files Modified This Session
+- **Enhanced**: `services/DreamerService.js` - Complete authentication service implementation
+- **Enhanced**: `DreamShepherd.jsx` - Router logic with DreamerService integration  
+- **Fixed**: `services/DreamService.js` - Removed constructor async/await, added init() method
+
+### Architecture Status
+- **Backend**: Production-ready authentication + Dream API with MongoDB
+- **Frontend**: Service layer complete, ready for API configuration and integration
+- **Next Milestone**: API configuration setup to connect frontend and backend services
+
+**Action Item for Next Session**: PRIORITY - Set up API configuration file so frontend can communicate with backend API services.

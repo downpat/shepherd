@@ -4,12 +4,33 @@
  * Following Clean Architecture: Service layer can use domain, cannot use UI
  */
 
-import { updateDream, validateDream } from '../domain/Dream.js'
+import { createDream, updateDream, validateDream } from '../domain/Dream.js'
 
 class DreamService {
   constructor() {
+    this.currentDream = null
     this.dreams = new Map() // In-memory storage for now
+    this.isInitialized = false
     this.listeners = new Set() // Event listeners for state changes
+  }
+
+  async init() {
+    if (!this.isInitialized) {
+      await this.fetchDreams()
+      this.isInitialized = true
+    }
+  }
+
+  async fetchDreams() {
+    const resp = await fetch('/api/dreams')
+
+    resp.data.forEach( (dream, idx) => {
+      const d = createDream(dream)
+
+      if(idx === 0) this.currentDream = d
+
+      this.dreams.set(dream.id, d)
+    })
   }
 
   // Create a new dream
@@ -23,7 +44,7 @@ class DreamService {
 
       this.dreams.set(dream.id, dream)
       this.notifyListeners('dreamSaved', dream)
-      
+
       return dream
     } catch (error) {
       console.error('Failed to save dream:', error)
@@ -77,7 +98,7 @@ class DreamService {
     try {
       const existingDream = await this.getDream(id)
       const updatedDream = updateDream(existingDream, updates);
-      
+
       const validation = validateDream(updatedDream)
       if (!validation.isValid) {
         const errorList = validation.errors.join(', ')
@@ -86,7 +107,7 @@ class DreamService {
 
       this.dreams.set(id, updatedDream)
       this.notifyListeners('dreamUpdated', updatedDream)
-      
+
       return updatedDream
     } catch (error) {
       console.error('Failed to update dream:', error)
@@ -100,7 +121,7 @@ class DreamService {
       const dream = await this.getDream(id)
       this.dreams.delete(id)
       this.notifyListeners('dreamDeleted', dream)
-      
+
       return dream
     } catch (error) {
       console.error('Failed to delete dream:', error)
@@ -129,8 +150,8 @@ class DreamService {
     try {
       const dreams = await this.getAllDreams()
       const lowerQuery = query.toLowerCase()
-      
-      return dreams.filter(dream => 
+
+      return dreams.filter(dream =>
         dream.title.toLowerCase().includes(lowerQuery) ||
         dream.vision.toLowerCase().includes(lowerQuery)
       )
@@ -171,7 +192,7 @@ class DreamService {
       }
 
       this.dreams.clear()
-      
+
       for (const dream of data.dreams) {
         const validation = validateDream(dream)
         if (validation.isValid) {

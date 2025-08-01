@@ -290,7 +290,64 @@ session 13
   it's not really a clean example of work session
 
   finished @ 2:54pm
+  restarted @ ~6:00pm
+  finished @ 7:11pm
+
+  I finished debugging the API
+  I also put together a plan for setting up auth on the frontend
+  In the next session we need to make sure Claude doesn't make
+    a wonky Dreamer model. It needs to have decent architecture
+    like the other models. This one was so weird I had to
+    shut down because I was too tired to be critical of something
+    so unfamiliar.
 
   session plan
     pray
     finish debugging new endpoints with integration script
+
+session 14
+  started @ 5:02pm on 2025-7-31
+  stopped @ 9:09pm on 2025-7-31
+
+  another weird session
+  there were some questions that Claude simply could not answer, so I was on my own
+  it looks like in this phase I'm going to have to think through some of the problems
+  once I come to a conclusion, I need to figure out how to guide claude to solve them
+  this is in contrast to the beginning of this project when I knew all the answers so
+    I could tell Claude exactly what to do
+  now that we're starting to get into the unknowns, Claude doesn't have the same
+    guardrails and he's getting a little nutty
+  one of the issues is that the only way for me to really think through all the problems
+    is to code them, so that takes time
+  thus, this was a four hour session (with some breaks to feed the cats and take phone
+    calls) but not much code was written, as compared to sessions when I know what to
+    do and I can have Claude write it quickly
+
+  session plan
+    pray
+    write a javascript model for the dreamer
+    write a dreamerservice that helps to handle auth
+    finish dream ui
+      goal slot on the right
+      cards for each goal fill the slot
+      goal creation has it's own page
+    intro page
+      enter button should submit input
+    finish goal UI
+      back to dream action is essential
+    start plan UI
+      back to goal action is essential
+      sub-elements of a plan do not get their own pages, too disposable
+      drawers for session, tasks, habits
+        each has a calendar drawer that shrinks the session, task, habit UI down and allows drag and drop
+        habits start empty (You have not created any habits yet)
+        "Since last we talked, this is what you planned to do. Which were accomplished?"
+      drawers for sessions, tasks, habits on the right
+      drawer on the right for calendar to place tasks
+    start Shepherd UI
+      put him on the left
+
+  next session
+
+  refactoring
+    Update API endpoints to make error handling more DRY

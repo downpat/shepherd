@@ -67,7 +67,6 @@ function Intro({ debugMode = false }) {
         id: generateUUID(),
         title: userInput
       })
-      console.dir(dreamService)
       await dreamService.saveDream(newDream)
 
       // Add a brief pause to ensure finger lifts and prevent mobile autofocus

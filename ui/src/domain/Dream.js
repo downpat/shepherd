@@ -16,7 +16,9 @@ export const createDream = ({
   title = '',
   vision = '',
   goals = [],
-  roleModels = []
+  roleModels = [],
+  createdAt,
+  updatedAt,
 }) => {
   return {
     id,
@@ -25,8 +27,8 @@ export const createDream = ({
     vision, // Stored as Markdown for WYSIWYG editing
     goals,
     roleModels,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: createdAt || new Date().toISOString(),
+    updatedAt: updatedAt || new Date().toISOString()
   };
 };
 

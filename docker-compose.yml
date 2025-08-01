@@ -29,7 +29,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - /home/pat/Development/shepherd/app-repo/svc:/app
+      - /home/pat/Development/shepherd/app-repo/ui:/app
     networks:
       - shepherd-network
 
