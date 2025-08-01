@@ -38,6 +38,7 @@ function DreamShepherd() {
     if (dreamer.type === 'normal') {
       return `/dream/${dreamService.currentDream.slug}`
     }  else {
+      console.log('Getting default route for non-normal user')
       // New user - show intro
       return '/'
     }

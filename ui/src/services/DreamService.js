@@ -3,6 +3,7 @@
  * Handles data persistence, business logic coordination, and external concerns
  * Following Clean Architecture: Service layer can use domain, cannot use UI
  */
+import config from '../../conf/svc.config.js'
 
 import { createDream, updateDream, validateDream } from '../domain/Dream.js'
 
@@ -22,15 +23,17 @@ class DreamService {
   }
 
   async fetchDreams() {
-    const resp = await fetch('/api/dreams')
+    const resp = await fetch(`${config.host}/api/dreams`)
 
-    resp.data.forEach( (dream, idx) => {
-      const d = createDream(dream)
+    if(resp.data) {
+      resp.data.forEach( (dream, idx) => {
+        const d = createDream(dream)
 
-      if(idx === 0) this.currentDream = d
+        if(idx === 0) this.currentDream = d
 
-      this.dreams.set(dream.id, d)
-    })
+        this.dreams.set(dream.id, d)
+      })
+    }
   }
 
   // Create a new dream

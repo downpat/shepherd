@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
 import AnimatedText from './AnimatedText.jsx'
+import Shepherd from './components/Shepherd.jsx'
 import { createDream } from './domain/Dream.js'
 import dreamService from './services/DreamService.js'
 import { isMobile, generateUUID } from './utils/device.js'
@@ -18,7 +19,7 @@ function Intro({ debugMode = false }) {
   const [showSubtitle, setShowSubtitle] = useState(false)
 
   //Shepherd User Input state
-  const [showHeader, setShowHeader] = useState(false)
+  const [shepherdOpen, setShepherdOpen] = useState(false)
   const [userInput, setUserInput] = useState('')
   const [showInputArea, setShowInputArea] = useState(false)
   const [mobileMode, setMobileMode] = useState(false)
@@ -28,9 +29,12 @@ function Intro({ debugMode = false }) {
   const navigate = useNavigate()
 
   //Shepherd's script
-  const shepherdGreeting = 'Tell me your dream'
-  const subGreeting = `A vision of what your life could be, ` +
-    `of what you want it to be`
+  const shepherdScript = [
+    {
+      message: 'Tell me your dream',
+      submessage: 'A vision of what your life could be, of what you want it to be'
+    }
+  ]
 
   ///////////////
   //  Event Handlers
@@ -45,7 +49,7 @@ function Intro({ debugMode = false }) {
   const handleSubtitleComplete = useCallback(() => {
     setTimeout(() => {
       setIntroComplete(true);
-      setShowHeader(true);
+      setShepherdOpen(true);
       setShowInputArea(true);
       setMobileMode(isMobile());
     }, 1500);
@@ -55,6 +59,11 @@ function Intro({ debugMode = false }) {
   const handleMobileFocusClick = () => {
     // Show the real textarea for mobile input
     setMobileMode(false)
+  }
+
+  //Handle toggling the Shepherd
+  const handleShepherdToggle = () => {
+    setShepherdOpen(!shepherdOpen)
   }
 
   //Handles Dreamer clicking "create dream"
@@ -128,24 +137,13 @@ function Intro({ debugMode = false }) {
             transition={{ duration: 0.8 }}
             className="min-h-screen flex flex-col"
           >
-            {/* Header */}
-            <AnimatePresence>
-              {showHeader && (
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="p-6 sm:p-8"
-                >
-                  <div className="flex items-baseline">
-                    <h1 className="text-xl sm:text-2xl font-bold shepherd-dark-blue">Tell me your dream</h1>
-                  </div>
-                  <p className="text-base sm:text-lg shepherd-dark-blue opacity-80 mt-2 ml-4 sm:ml-8">
-                    A vision of what your life could be, of what you want it to be
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Shepherd - appears at top like a gentleman */}
+            <Shepherd
+              isOpen={shepherdOpen}
+              onToggle={handleShepherdToggle}
+              script={shepherdScript}
+              animationType="fade"
+            />
 
             {/* Interactive Input Area */}
             <AnimatePresence>

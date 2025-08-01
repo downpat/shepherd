@@ -351,3 +351,17 @@ session 14
 
   refactoring
     Update API endpoints to make error handling more DRY
+
+session 15
+  started @ 2:00pm on 2025-8-1
+  finished @ 5:11pm on 2025-8-1
+
+  Ok, we continued work on our introduction logic, so the use cases for
+  the intial user experience are coming together. We have to guide the
+  Dreamer from Anonymous state to either the Intro state or the Normal
+  state, and the only way to do that was to start adding the Shepherd UI,
+  so we have the first version of the Shepherd UI up and running. I still
+  need to figure out how to send dynamic components to the Shepherd component
+  so he can render contextual modals, and Claude seems a bit stumped with
+  that one as well, but once we figure that out we should be ready to handle
+  almost any UX case in DreamShepherd 1.0

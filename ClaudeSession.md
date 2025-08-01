@@ -987,3 +987,99 @@
 - **Next Milestone**: API configuration setup to connect frontend and backend services
 
 **Action Item for Next Session**: PRIORITY - Set up API configuration file so frontend can communicate with backend API services.
+
+## Session 2025-08-01 (Continued)
+
+### Session Summary
+**Objective**: Implement ubiquitous Shepherd UI component with auto-cycling and interactive modal system
+
+**Major Accomplishments**:
+1. **API Configuration Resolution**:
+   - Fixed CORS error by adding `http://` protocol to config file (`shepherd-svc:3001` → `http://localhost:3001`)
+   - Updated auth/refresh endpoint to use POST with credentials for httpOnly cookies
+   - Established successful frontend-backend API communication
+
+2. **Ubiquitous Shepherd Component Implementation**:
+   - Created Shepherd component as drawer-style guidance element at top of pages
+   - Implemented persistent toggle tab with custom shepherd's cane icon
+   - Added support for multiple animation types: 'fade', 'type', 'none'
+   - Integrated into both Intro and DreamEditor components
+
+3. **Auto-Cycling Timer System**:
+   - Implemented text-based timer duration (1 second per 10 characters, minimum 2 seconds)
+   - Added automatic cycling through script messages with wrap-around navigation
+   - Created hover state management: timer stops on hover, restarts on mouse leave
+   - Navigation elements (arrows, dots) only visible during hover state
+
+4. **Interactive Modal Action System**:
+   - Enhanced script objects to support `buttonText` and `component` properties
+   - Created modal system for Shepherd-initiated user interactions
+   - Built placeholder ReminderModal component for dream reminder functionality
+   - Implemented proper modal lifecycle: stops timer on open, restarts on close
+
+5. **Navigation Enhancement**:
+   - Replaced conditional arrow visibility with wrap-around navigation
+   - Both previous/next arrows always visible when hovering (if multiple messages)
+   - Circular navigation: first ↔ last message seamlessly
+
+### Technical Implementations
+**Shepherd Component Features**:
+- **Script-based**: Array of message objects with optional actions  
+- **Timer Logic**: `(message + submessage).length / 10 * 1000ms` duration
+- **Hover Control**: Mouse enter/leave toggles navigation visibility and timer state
+- **Modal Integration**: Button clicks open specified components in modal overlay
+- **Wrap-around Navigation**: Previous from first → last, next from last → first
+
+**Architecture Integration**:
+- **Intro Component**: Single message script with fade animation
+- **DreamEditor**: Three-message script including interactive reminder question
+- **Modal System**: Dynamic component rendering with proper prop passing
+
+### Current Project State
+- **Shepherd System**: Complete ubiquitous guidance component operational
+- **Navigation**: Wrap-around cycling with hover-controlled visibility
+- **Modal Framework**: Ready for interactive Dreamer questions and responses
+- **API Integration**: Frontend-backend communication established
+- **Files**: 35+ total (added Shepherd.jsx, ReminderModal.jsx)
+
+### Technical Issue Encountered
+**Modal Props Passing Bug**: 
+- Error: "null has no properties" in ReminderModal destructuring
+- Component passed correctly but props object is null
+- Attempted fixes: default parameters, React.createElement → JSX, defensive destructuring
+- **Status**: Needs debugging next session
+
+### Files Created/Modified This Session
+- **Created**: `components/Shepherd.jsx` - Ubiquitous guidance component with auto-cycling and modal system
+- **Created**: `components/ReminderModal.jsx` - Placeholder component for dream reminder functionality  
+- **Enhanced**: `Intro.jsx` - Integrated Shepherd with single-message script
+- **Enhanced**: `DreamEditor.jsx` - Added Shepherd with three-message interactive script
+- **Fixed**: `conf/svc.config.js` - Added http:// protocol for proper API communication
+- **Fixed**: `services/DreamerService.js` - Updated refresh endpoint to use POST with credentials
+
+### Next Session Priorities
+1. **Modal Bug Resolution** (High Priority):
+   - Debug null props issue in modal component rendering
+   - Test complete Shepherd → Modal → Action workflow
+   - Ensure proper component prop passing in dynamic modal system
+
+2. **Shepherd Enhancement** (Medium Priority):
+   - Add contextual scripts for different application states
+   - Design Shepherd personality and guidance messaging system
+   - Implement smart guidance based on user progress and context
+
+3. **Authentication Flow Completion** (Medium Priority):
+   - Complete frontend-backend authentication integration testing
+   - Implement proper JWT token management and refresh flows
+   - Test full user journey from registration through authenticated usage
+
+### Architecture Impact Assessment
+**Major Milestone**: Completed transition from static UI to dynamic, guided user experience
+- **Guidance System**: Shepherd now provides contextual, interactive guidance throughout application
+- **User Experience**: Auto-cycling guidance with manual control maintains contemplative feel
+- **Extensibility**: Modal system supports future interactive features and user input collection
+- **Foundation**: Framework established for comprehensive Dreamer guidance and support system
+
+**Key Insight**: The Shepherd component successfully balances automated guidance with user control - cycling automatically to provide gentle guidance while immediately responding to user interest through hover interactions.
+
+**Status**: Shepherd guidance system implemented and operational, ready for contextual content expansion and modal interaction debugging.

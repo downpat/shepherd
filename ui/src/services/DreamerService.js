@@ -5,6 +5,8 @@
  * Following Clean Architecture: Service layer coordinates authentication methods
  */
 
+import config from '../../conf/svc.config.js'
+
 import { createDreamer, updateDreamer } from '../domain/Dreamer.js'
 
 class DreamerService {
@@ -33,7 +35,7 @@ class DreamerService {
 
     if(tempToken) {
       //Hit /auth/intro/:token and get intro dreamer
-      const resp = await fetch(`/api/auth/intro/${tempToken}`)
+      const resp = await fetch(`${config.host}/api/auth/intro/${tempToken}`)
       console.log('Response from intro')
       console.dir(resp)
       return updateDreamer(newDreamer, {...resp.data, type: 'intro'})
@@ -41,7 +43,7 @@ class DreamerService {
 
     //Hit /auth/me and get full dreamer
     if(this.accessJwt) {
-      const resp = await fetch('/api/auth/me', {
+      const resp = await fetch(`${config.host}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${this.accessJwt}` }
       })
       console.log('Response from auth/me')
@@ -50,13 +52,20 @@ class DreamerService {
     }
 
     //If response from /auth/me is not 200, try to refresh at /auth/refresh
-    const resp = await fetch('/api/auth/refresh')
+    const resp = await fetch(`${config.host}/api/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include' // Include httpOnly cookies
+    })
+
     console.log('Response from auth/refresh')
     console.dir(resp)
-    this.accessJwt = resp.data.accessToken
-    return updateDreamer(newDreamer, {...resp.data.dreamer, type: 'normal'})
+    if(resp.status === 200) {
+      this.accessJwt = resp.data.accessToken
+      return updateDreamer(newDreamer, {...resp.data.dreamer, type: 'normal'})
+    }
 
     //If response from auth/refresh is not 200, this is an anonymous user
+    return newDreamer
 
   }
 

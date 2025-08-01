@@ -413,29 +413,106 @@ This approach prioritizes reliability and debuggability while maintaining develo
 - **Phase**: 2 (Complete backend vertical slice, ready for frontend integration)
 - **Files**: 30+ total (major expansion with complete authentication system)
 
+## Shepherd Component Architecture
+
+### Overview
+The Shepherd component serves as the ubiquitous guidance system throughout DreamShepherd, providing contextual assistance and interactive features while maintaining the application's contemplative design philosophy.
+
+### Core Features
+- **Ubiquitous Presence**: Available on every page through a persistent toggle tab
+- **Auto-Cycling Messages**: Automatically rotates through guidance scripts based on text length
+- **Hover-Interactive**: Navigation controls appear only when user hovers, preserving clean aesthetic
+- **Modal Actions**: Can prompt user interactions through dynamically loaded modal components
+- **Wrap-Around Navigation**: Seamless circular navigation through message scripts
+
+### Component API
+```jsx
+<Shepherd
+  isOpen={boolean}                    // Controls visibility of guidance panel
+  onToggle={function}                 // Handler for toggle tab clicks
+  script={array}                      // Array of message objects
+  animationType={'fade'|'type'|'none'} // Text animation style
+  onMessageComplete={function}        // Optional callback when message completes
+/>
+```
+
+### Script Object Structure
+```javascript
+{
+  message: string,           // Primary guidance text
+  submessage?: string,       // Optional secondary text
+  buttonText?: string,       // Optional action button text
+  component?: ReactComponent // Optional modal component for interactions
+}
+```
+
+### Timer System
+- **Duration Calculation**: 1 second per 10 characters (minimum 2 seconds)
+- **Auto-Cycling**: Automatically advances through messages when multiple exist
+- **Hover Control**: Timer pauses on hover, resumes on mouse leave
+- **Modal Integration**: Timer stops when modal opens, restarts when closed
+
+### Visual Design
+- **Toggle Tab**: Persistent tab at bottom with custom shepherd's cane icon
+- **Gentle Animations**: Smooth fade transitions maintaining contemplative feel
+- **Navigation Elements**: Arrows and page dots only visible during hover
+- **Modal System**: Overlay modals for interactive components
+
+### Usage Examples
+**Simple Guidance** (Intro):
+```javascript
+const script = [{
+  message: 'Tell me your dream',
+  submessage: 'A vision of what your life could be, of what you want it to be'
+}]
+```
+
+**Interactive Guidance** (DreamEditor):
+```javascript
+const script = [
+  { message: 'Let your vision flow', submessage: 'Write freely...' },
+  { message: 'Dreams evolve with time', submessage: 'Don\'t worry about perfection...' },
+  { 
+    message: 'Would you like me to remind you to edit your dream?',
+    submessage: 'I can send you a gentle reminder...',
+    buttonText: 'Set Reminder',
+    component: ReminderModal
+  }
+]
+```
+
+### Integration Guidelines
+1. **Always Present**: Include Shepherd on every major application page
+2. **Contextual Scripts**: Tailor message content to current user context and needs
+3. **Gentleman Behavior**: Shepherd should be helpful but never intrusive
+4. **Modal Actions**: Use for collecting user input or providing interactive guidance
+5. **Sacred UX**: Maintain contemplative, intentional interaction patterns
+
+### File Location
+- **Component**: `/ui/src/components/Shepherd.jsx`
+- **Modal Components**: `/ui/src/components/[ModalName].jsx`
+
 ## Next Session Priorities
-1. **Integration Test Completion** (Critical):
+1. **Modal Bug Resolution** (Critical):
+   - Fix null props issue in dynamic modal component rendering
+   - Complete Shepherd interactive action system testing
+   - Ensure proper prop passing in modal system
+
+2. **Integration Test Completion** (High Priority):
    - Fix JSON syntax error in auth route and curl escaping issues
    - Complete full test suite validation with all endpoints
    - Ensure authentication flow works end-to-end
 
-2. **Frontend API Integration** (High Priority):
+3. **Frontend API Integration** (High Priority):
    - Update DreamService to use HTTP API instead of localStorage
    - Implement JWT token management in React (access/refresh flow)
    - Add authentication state management and protected routes
    - Connect Dream CRUD operations to backend API
 
-3. **Mobile-First UI Design** (High Priority):
-   - Complete responsive design implementation
-   - Test authentication flow on mobile devices
-   - Touch-friendly interactions, mobile toolbar layout
-   - Responsive chiseled stone well and floating toolbar
-
-4. **Shepherd UI Design** (High Priority):
-   - Create Shepherd UI element as the sole source of guidance
-   - Replace all helper text with Shepherd interactions  
-   - Design contextual guidance system with Shepherd personality
-   - Rule: No inline text or labels - all guidance through Shepherd UI
+4. **Shepherd Content Development** (Medium Priority):
+   - Develop contextual guidance scripts for different application states
+   - Create comprehensive Dreamer onboarding and support messaging
+   - Design interactive modal components for common user workflows
 
 5. **Complete Application Flow**:
    - DreamsDashboard implementation

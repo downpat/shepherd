@@ -14,6 +14,8 @@ import {
 } from '../domain/Dream.js'
 import dreamService from '../services/DreamService.js'
 import { generateUUID } from '../utils/device.js'
+import Shepherd from './Shepherd.jsx'
+import ReminderModal from './ReminderModal.jsx'
 
 const DreamEditor = ({ debugMode = false }) => {
   const { slug } = useParams()
@@ -25,8 +27,27 @@ const DreamEditor = ({ debugMode = false }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isEditorFocused, setIsEditorFocused] = useState(false)
+  const [shepherdOpen, setShepherdOpen] = useState(false)
 
   console.log(`Debug mode: ${debugMode}`)
+
+  // Shepherd's script for Dream editing context
+  const shepherdScript = [
+    {
+      message: 'Let your vision flow',
+      submessage: 'Write freely about what you see when you imagine this dream fulfilled'
+    },
+    {
+      message: 'Dreams evolve with time',
+      submessage: 'Don\'t worry about perfection - your dream will grow clearer as you write'
+    },
+    {
+      message: 'Would you like me to remind you to edit your dream at another time?',
+      submessage: 'I can send you a gentle reminder to return to your dream when it\'s convenient for you',
+      buttonText: 'Set Reminder',
+      component: ReminderModal
+    }
+  ]
 
   // Tiptap editor for vision field
   const editor = useEditor({
@@ -180,6 +201,11 @@ const DreamEditor = ({ debugMode = false }) => {
     navigate('/dreams')
   }
 
+  //Handle toggling the Shepherd
+  const handleShepherdToggle = () => {
+    setShepherdOpen(!shepherdOpen)
+  }
+
   if (loading) {
     return (
       <motion.div
@@ -215,6 +241,14 @@ const DreamEditor = ({ debugMode = false }) => {
           </ul>
         </motion.div>
       )}
+
+      {/* Shepherd - guidance for dream editing */}
+      <Shepherd
+        isOpen={shepherdOpen}
+        onToggle={handleShepherdToggle}
+        script={shepherdScript}
+        animationType="fade"
+      />
 
       <form onSubmit={handleSubmit} className="min-h-screen flex flex-col">
         {/* Dream Title - Large, Editable Headline */}

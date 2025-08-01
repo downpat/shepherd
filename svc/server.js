@@ -32,9 +32,9 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.CLIENT_ORIGIN
-    : ['http://localhost:5173', 'http://192.168.0.133:5173'], // Vite dev server
+    : ['http://localhost:5173', 'http://192.168.0.133:5173', 'http://shepherd-ui:5173'], // Vite dev server + Docker network
   credentials: true, // Allow cookies
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -54,7 +54,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/dreams', dreamRoutes);
 
 // API root endpoint
