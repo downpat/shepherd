@@ -111,7 +111,7 @@ function Intro({ debugMode = false }) {
               <div className="flex flex-col space-y-4">
 		{showHeadline && (
 	          <AnimatedText
-	            text={shepherdGreeting}
+	            text={shepherdScript[0].message}
 	            textSize={"title"}
 	            delay={1500}
 	            onComplete={handleTitleComplete}
@@ -119,7 +119,7 @@ function Intro({ debugMode = false }) {
 		)}
 		{showSubtitle && (
 	          <AnimatedText
-	            text={subGreeting}
+	            text={shepherdScript[0].submessage}
 	            textSize={"subtitle"}
 	            clearCursor={false}
 	            onComplete={handleSubtitleComplete}

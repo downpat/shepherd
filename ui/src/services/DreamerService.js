@@ -7,7 +7,7 @@
 
 import config from '../../conf/svc.config.js'
 
-import { createDreamer, updateDreamer } from '../domain/Dreamer.js'
+import { createDreamer, updateDreamer, validateDreamer } from '../domain/Dreamer.js'
 
 class DreamerService {
   constructor() {
@@ -267,6 +267,99 @@ class DreamerService {
   }
 
   /**
+   * Create an intro dreamer via API call
+   * @param {string} email - Email address for the intro dreamer
+   * @param {string} reminderDate - ISO date string for reminder (optional)
+   * @param {string} reminderTime - Time string for reminder (optional)
+   * @returns {Object} { success: boolean, tempToken: string|null, dreamer: Object|null, errors: Array }
+   */
+  async createIntroDreamer(email, reminderDate = null, reminderTime = null) {
+    try {
+      // Create and validate dreamer object first
+      const introDreamer = createDreamer({
+        type: 'intro',
+        email
+      });
+
+      const validation = validateDreamer(introDreamer);
+      if (!validation.isValid) {
+        return {
+          success: false,
+          tempToken: null,
+          dreamer: null,
+          errors: validation.errors
+        };
+      }
+
+      // Prepare API request data
+      const requestData = {
+        email: introDreamer.email
+      };
+
+      // Add reminder scheduling if provided
+      if (reminderDate && reminderTime) {
+        requestData.reminderDateTime = `${reminderDate}T${reminderTime}`;
+      }
+
+      console.log('Creating intro dreamer with data:', requestData);
+
+      // Make API call to create intro dreamer
+      const response = await fetch(`${config.host}/api/auth/intro`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Intro dreamer creation response:', responseData);
+
+        // Update current dreamer and temp token
+        this.currentDreamer = updateDreamer(introDreamer, {
+          type: 'intro',
+          email: responseData.email || introDreamer.email
+        });
+        this.tempToken = responseData.tempToken || '';
+
+        // Notify listeners of auth state change
+        this.notifyListeners('authStateChanged', { 
+          isAuthenticated: true, 
+          dreamer: this.currentDreamer 
+        });
+
+        return {
+          success: true,
+          tempToken: this.tempToken,
+          dreamer: this.currentDreamer,
+          errors: []
+        };
+      } else {
+        // Handle API errors
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API error creating intro dreamer:', errorData);
+
+        return {
+          success: false,
+          tempToken: null,
+          dreamer: null,
+          errors: [errorData.error || 'Failed to create reminder']
+        };
+      }
+
+    } catch (error) {
+      console.error('Failed to create intro dreamer:', error);
+      return {
+        success: false,
+        tempToken: null,
+        dreamer: null,
+        errors: ['Network error. Please try again.']
+      };
+    }
+  }
+
+  /**
    * Sign out current dreamer
    */
   async signOut() {
@@ -275,6 +368,7 @@ class DreamerService {
       // await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
 
       this.currentDreamer = null
+      this.tempToken = ''
       this.notifyListeners('authStateChanged', { isAuthenticated: false, dreamer: null })
 
       return true

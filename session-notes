@@ -365,3 +365,27 @@ session 15
   so he can render contextual modals, and Claude seems a bit stumped with
   that one as well, but once we figure that out we should be ready to handle
   almost any UX case in DreamShepherd 1.0
+
+session 16
+  started @ 1:51pm on 2025-8-2
+  finished @ 4:16pm on 2025-8-2
+
+  fix the component bug from last session
+  update reminder form to create intro Dreamer
+  debug intro Dreamer experience
+    intro Dreamer arrives at the site
+    temp token is either in memory or in the URL
+    intro Dreamer is routed to DreamEditor
+    when they get to the point of goal creation, they
+      will have to register
+  update DreamEditor to count dream text
+    once Dreamer gets to a certain word/char count, init Goals UI
+  shepherd should be on the left on mobile
+  shepherd should have an alert function to replace the script
+    with important info
+  shepherd will probably need to be broken down into separate components
+  shepherd should have an alert function to replace the script
+    with important info
+
+  next session
+    pray

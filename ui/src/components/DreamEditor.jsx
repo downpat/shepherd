@@ -45,7 +45,7 @@ const DreamEditor = ({ debugMode = false }) => {
       message: 'Would you like me to remind you to edit your dream at another time?',
       submessage: 'I can send you a gentle reminder to return to your dream when it\'s convenient for you',
       buttonText: 'Set Reminder',
-      component: ReminderModal
+      renderModal: (onClose) => <ReminderModal onClose={onClose} />
     }
   ]
 

@@ -19,7 +19,7 @@ function Shepherd({
   const [isHovered, setIsHovered] = useState(false)
   const [timer, setTimer] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const [modalComponent, setModalComponent] = useState(null)
+  const [modalRenderFunction, setModalRenderFunction] = useState(null)
 
   const currentMessage = script[currentIndex] || { message: '', submessage: '' }
 
@@ -95,10 +95,10 @@ function Shepherd({
   }
 
   // Handle modal actions
-  const handleActionClick = (component) => {
-    console.log('handleActionClick called with:', component)
-    if (component) {
-      setModalComponent(component)
+  const handleActionClick = (renderModal) => {
+    console.log('handleActionClick called with renderModal function:', typeof renderModal)
+    if (renderModal && typeof renderModal === 'function') {
+      setModalRenderFunction(() => renderModal) // Store the render function
       setModalOpen(true)
       stopTimer() // Stop auto-cycling when modal opens
     }
@@ -106,7 +106,7 @@ function Shepherd({
 
   const handleModalClose = () => {
     setModalOpen(false)
-    setModalComponent(null)
+    setModalRenderFunction(null)
     startTimer() // Explicitly restart the timer after modal closes
   }
 
@@ -154,9 +154,9 @@ function Shepherd({
               onComplete={handleSubmessageComplete}
             />
           )}
-          {currentMessage.buttonText && currentMessage.component && (
+          {currentMessage.buttonText && currentMessage.renderModal && (
             <button
-              onClick={() => handleActionClick(currentMessage.component)}
+              onClick={() => handleActionClick(currentMessage.renderModal)}
               className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
             >
               {currentMessage.buttonText}
@@ -181,9 +181,9 @@ function Shepherd({
               {currentMessage.submessage}
             </p>
           )}
-          {currentMessage.buttonText && currentMessage.component && (
+          {currentMessage.buttonText && currentMessage.renderModal && (
             <button
-              onClick={() => handleActionClick(currentMessage.component)}
+              onClick={() => handleActionClick(currentMessage.renderModal)}
               className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
             >
               {currentMessage.buttonText}
@@ -203,9 +203,9 @@ function Shepherd({
               {currentMessage.submessage}
             </p>
           )}
-          {currentMessage.buttonText && currentMessage.component && (
+          {currentMessage.buttonText && currentMessage.renderModal && (
             <button
-              onClick={() => handleActionClick(currentMessage.component)}
+              onClick={() => handleActionClick(currentMessage.renderModal)}
               className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
             >
               {currentMessage.buttonText}
@@ -332,7 +332,7 @@ function Shepherd({
 
       {/* Modal for action components */}
       <AnimatePresence>
-        {modalOpen && modalComponent && (
+        {modalOpen && modalRenderFunction && (
           <>
             {/* Backdrop */}
             <motion.div
@@ -342,14 +342,14 @@ function Shepherd({
               className="fixed inset-0 bg-black/50 z-50"
               onClick={handleModalClose}
             />
-            
+
             {/* Modal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3 }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-lg shadow-xl max-w-md w-full mx-4"
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 min-h-[500px]"
             >
               {/* Close button */}
               <div className="flex justify-end p-4 pb-0">
@@ -363,13 +363,10 @@ function Shepherd({
                   </svg>
                 </button>
               </div>
-              
-              {/* Modal content */}
+
+              {/* Modal content - render the component using the render function */}
               <div className="px-4 pb-4">
-                {modalComponent && (() => {
-                  const Component = modalComponent
-                  return <Component onClose={handleModalClose} />
-                })()}
+                {modalRenderFunction(handleModalClose)}
               </div>
             </motion.div>
           </>

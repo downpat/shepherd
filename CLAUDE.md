@@ -390,6 +390,13 @@ DreamShepherd follows a defensive programming approach with extensive error hand
 
 This approach prioritizes reliability and debuggability while maintaining development velocity and allowing organic evolution based on real user feedback.
 
+### Code Output Display Guidelines
+**When showing code changes in tool responses:**
+- Use red background highlighting for removed lines (lines with `-` prefix)
+- Use green background highlighting for added lines (lines with `+` prefix) 
+- This helps visually distinguish what's being removed vs added during code modifications
+- Example formatting: `- old code` (red background), `+ new code` (green background)
+
 ### Session Management
 **At the start of each Shepherd development session:**
 1. **Developer prayer reminder**: Remind Patrick to pray before beginning work
