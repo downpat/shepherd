@@ -88,7 +88,12 @@ const DreamEditor = ({ debugMode = false }) => {
         'data-placeholder': 'I envision a life where...'
       },
     },
-    onFocus: () => setIsEditorFocused(true)
+    onFocus: () => setIsEditorFocused(true),
+    onUpdate: ({ editor }) => {
+      const newVision = editor.getJSON()
+      // Update current dream vision in service
+      dreamService.updateCurrentDreamVision(newVision)
+    }
   })
 
 
@@ -99,8 +104,11 @@ const DreamEditor = ({ debugMode = false }) => {
       try {
         setLoading(true)
         const dreamData = await dreamService.getDreamBySlug(slug)
+        dreamService.setCurrentDream(dreamData)
         setDream(dreamData)
         setTitle(dreamData.title || '')
+        // Set this dream as the current dream in the service
+        dreamService.setCurrentDream(dreamData)
         // Set editor content - handle both JSON and string vision data
         if (editor && dreamData.vision) {
           try {
@@ -125,6 +133,8 @@ const DreamEditor = ({ debugMode = false }) => {
           await dreamService.saveDream(debugDream)
           setDream(debugDream)
           setTitle(debugDream.title)
+          // Set this debug dream as current dream
+          dreamService.setCurrentDream(debugDream)
         } else {
           // Production: redirect to home
           navigate('/')
@@ -145,7 +155,10 @@ const DreamEditor = ({ debugMode = false }) => {
   }
 
   const handleTitleChange = (e) => {
-    setTitle(e.target.value)
+    const newTitle = e.target.value
+    setTitle(newTitle)
+    // Update current dream in service
+    dreamService.updateCurrentDreamTitle(newTitle)
     // Clear errors when user starts typing
     if (errors.length > 0) {
       setErrors([])

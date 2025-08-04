@@ -154,6 +154,7 @@ introDreamerSchema.methods.toSafeObject = function() {
     email: this.email,
     dreamTitle: this.dreamTitle,
     dreamVision: this.dreamVision,
+    tempToken: this.tempToken,
     reminderDateTime: this.reminderDateTime,
     reminderSent: this.reminderSent,
     introCompletedAt: this.introCompletedAt,

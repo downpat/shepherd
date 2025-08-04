@@ -397,6 +397,30 @@ This approach prioritizes reliability and debuggability while maintaining develo
 - This helps visually distinguish what's being removed vs added during code modifications
 - Example formatting: `- old code` (red background), `+ new code` (green background)
 
+### Dream ID Generation Strategy
+**Client-side generation with server-side collision resolution for optimal UX:**
+
+1. **Frontend ID Generation**:
+   - All Dream IDs are generated client-side using `generateUUID()` from `ui/src/utils/device.js`
+   - Uses `crypto.randomUUID()` with fallback for mobile browser compatibility
+   - No API calls required for ID generation = faster UX
+
+2. **ID Generation Locations**:
+   - **Domain Layer** (`ui/src/domain/Dream.js`): Does NOT generate IDs - expects `id` parameter (Clean Architecture)
+   - **Service Layer** (`ui/src/services/DreamService.js`): Uses `generateUUID()` when creating dreams for IntroDreamers
+   - **UI Layer** (`ui/src/components/DreamEditor.jsx`): Uses `generateUUID()` in debug mode
+   - **Utils Layer** (`ui/src/utils/device.js`): Contains the canonical `generateUUID()` function
+
+3. **Server-side Collision Handling**:
+   - Backend API (`svc/routes/dreams.js`) uses `crypto.randomUUID()` only for collision resolution
+   - If frontend-provided ID conflicts, server generates new ID and returns `newId` field
+   - Backend model (`svc/models/Dream.js`) uses custom string IDs, expects frontend to provide them
+
+4. **Best Practices**:
+   - Always import and use `generateUUID()` from utils when services need to create Dream IDs
+   - Keep domain layer pure - never generate IDs in domain functions
+   - Maintain consistency - all client-side generation uses the same cross-browser compatible function
+
 ### Session Management
 **At the start of each Shepherd development session:**
 1. **Developer prayer reminder**: Remind Patrick to pray before beginning work

@@ -14,12 +14,18 @@ function DreamShepherd() {
 
   useEffect(() => {
     const initAll = async () => {
-      setDreamer(await dreamerService.getDreamer())
-      await dreamService.init()
+      const authenticatedDreamer = await dreamerService.getDreamer()
+      setDreamer(authenticatedDreamer)
+      
+      // Initialize DreamService based on the dreamer type
+      await dreamService.initForDreamer(authenticatedDreamer)
     }
 
     initAll();
   }, [])
+
+  console.log('Routing according to dreamer:')
+  console.dir(dreamer)
 
   // Show loading spinner while checking authentication
   if (!dreamer) {
@@ -37,9 +43,12 @@ function DreamShepherd() {
   const getDefaultRoute = () => {
     if (dreamer.type === 'normal') {
       return `/dream/${dreamService.currentDream.slug}`
-    }  else {
-      console.log('Getting default route for non-normal user')
-      // New user - show intro
+    } else if (dreamer.type === 'intro' && dreamService.currentDream) {
+      // IntroDreamer with saved dream - route to dream editor
+      return `/dream/${dreamService.currentDream.slug}`
+    } else {
+      console.log('Getting default route for anonymous user')
+      // Anonymous user - show intro
       return '/'
     }
   }
@@ -51,12 +60,10 @@ function DreamShepherd() {
         <Route
           path="/"
           element={
-            dreamer.type === 'normal' ? (
-              <Navigate to={getDefaultRoute()} replace />
+            dreamer.type === 'anonymous' ? (
+              <Intro debugMode={DEBUG_MODE} />
             ) : (
-              <Intro
-                debugMode={DEBUG_MODE}
-              />
+              <Navigate to={getDefaultRoute()} replace />
             )
           }
         />

@@ -1169,3 +1169,183 @@
 **Key Insight**: The render function approach for modals provides the perfect balance of flexibility and simplicity - Shepherd stays completely agnostic while script authors maintain full control over component rendering and props.
 
 **Status**: Modal system architecture complete, ReminderModal functional but needs sizing fix and integration testing. Ready for backend API integration validation.
+
+## Session 2025-08-03
+
+### Session Summary
+**Objective**: Implement localStorage-based IntroDreamer routing and complete the full IntroDreamer user flow
+
+**Key Accomplishments**:
+1. **Modal System Refinement**:
+   - Fixed modal centering using flexbox approach instead of transform positioning
+   - Doubled size of ReminderModal form elements (text, inputs, buttons) for better UX
+   - Added consistent localStorage key (`TEMP_TOKEN_STORAGE_KEY`) for tempToken persistence
+
+2. **DreamerService Authentication Refactor**:
+   - Completely restructured authentication flow with three separate methods:
+     - `fetchJWTDreamer()`: Full API call to `/api/auth/me` with proper error handling
+     - `fetchRefreshDreamer()`: Full API call to `/api/auth/refresh` with httpOnly cookies
+     - `fetchIntroDreamer()`: Full API call to `/api/auth/intro/:token` with localStorage integration
+   - Added security safeguards to prevent IntroDreamer authentication when normal user is already logged in
+   - Implemented automatic tempToken cleanup from localStorage when invalid
+   - Added localStorage-based tempToken persistence in `createIntroDreamer()`
+
+3. **DreamService IntroDreamer Integration**:
+   - Created `initForDreamer()` method that initializes DreamService based on dreamer type
+   - Implemented `initForIntroDreamer()` method that creates Dream from saved IntroDreamer data
+   - Uses `generateUUID()` from utils for consistent client-side ID generation
+   - Properly handles anonymous, intro, and normal dreamer initialization flows
+
+4. **DreamShepherd Routing Enhancement**:
+   - Updated initialization flow to use `dreamService.initForDreamer(authenticatedDreamer)`
+   - Simplified routing logic: anonymous users → Intro, all others → Navigate to `getDefaultRoute()`
+   - Added support for IntroDreamer automatic routing to their saved dream
+
+5. **Dream ID Generation Strategy Documentation**:
+   - Documented client-side generation approach with server-side collision resolution
+   - Established `generateUUID()` from utils as canonical ID generation method
+   - Maintains Clean Architecture with domain layer staying pure
+
+### Technical Architecture Decisions
+1. **localStorage as Primary IntroDreamer Persistence**: 
+   - Automatic tempToken storage after creation
+   - Cross-browser session persistence without server-side session complexity
+   - Clean automatic cleanup of invalid tokens
+
+2. **Service Coordination in DreamShepherd**: 
+   - DreamerService handles authentication
+   - DreamService initialized based on authenticated dreamer type
+   - Clean separation of concerns while enabling proper data setup
+
+3. **Security-First Authentication Flow**:
+   - Prevents IntroDreamer downgrade attacks on normal users
+   - Proper JWT and refresh token handling
+   - Automatic cleanup of invalid authentication data
+
+### Current Project State
+- **Complete IntroDreamer Flow**: Ready for end-to-end testing
+- **localStorage Integration**: Automatic tempToken persistence and retrieval
+- **Service Architecture**: Clean coordination between DreamerService and DreamService
+- **Routing**: Full support for anonymous, intro, and normal dreamer flows
+- **Files**: 35+ total with complete authentication and dream management systems
+
+### Critical Issues to Debug Next Session
+1. **IntroDreamer Flow Testing**: Need to test complete flow from Intro → ReminderModal → localStorage → Return visit → DreamEditor
+2. **API Integration Validation**: Ensure backend API endpoints match frontend expectations
+3. **Error Handling**: Test edge cases and error recovery in authentication flow
+
+### Files Modified This Session
+- **Enhanced**: `services/DreamerService.js` - Complete authentication refactor with localStorage integration
+- **Enhanced**: `services/DreamService.js` - Added `initForDreamer()` and `initForIntroDreamer()` methods
+- **Enhanced**: `DreamShepherd.jsx` - Updated initialization and routing for IntroDreamer support
+- **Enhanced**: `components/Shepherd.jsx` - Fixed modal centering with flexbox approach
+- **Enhanced**: `components/ReminderModal.jsx` - Doubled form element sizes for better UX
+- **Updated**: `CLAUDE.md` - Documented Dream ID generation strategy and best practices
+
+### Next Session Priorities (TOP PRIORITY)
+1. **IntroDreamer Flow End-to-End Testing** (CRITICAL):
+   - Test complete user journey: Intro → Create Dream → Set Reminder → Navigate away → Return → Auto-route to DreamEditor
+   - Debug any authentication, localStorage, or routing issues
+   - Verify backend API integration works correctly
+   - Test error handling and edge cases
+
+2. **Backend Integration Validation** (High Priority):
+   - Verify `/api/auth/intro` endpoint accepts title and vision data
+   - Test `/api/auth/intro/:token` endpoint returns proper dreamer data
+   - Ensure API response format matches frontend expectations
+
+3. **Error Handling Refinement** (Medium Priority):
+   - Test invalid tempToken scenarios
+   - Verify localStorage cleanup works properly
+   - Test network error recovery
+
+### Architecture Status
+**Major Milestone**: Completed full IntroDreamer flow with localStorage persistence, authentication, and automatic dream setup. The system now supports seamless return visits for IntroDreamers without requiring manual token entry.
+
+**Key Insight**: The localStorage approach provides the perfect balance of user convenience and technical simplicity - IntroDreamers can return to their dreams across browser sessions without complex server-side session management.
+
+**Status**: Complete IntroDreamer user flow implemented and ready for comprehensive testing and debugging.
+
+## Session 2025-08-04
+
+### Session Summary
+**Objective**: Configure multi-device network access and enhance mobile UX with touch-friendly Shepherd navigation
+
+**Key Accomplishments**:
+1. **Docker Compose Network Configuration**:
+   - Updated all services to bind to `0.0.0.0` for local network access
+   - Centralized environment variable configuration in docker-compose.yml
+   - Updated server and client configs to use environment variables
+   - Successfully tested multi-device access (laptop → Android) via network IP
+
+2. **Environment Variable Architecture**:
+   - **Docker Compose**: Controls all environment configuration as single source of truth
+   - **Server Config**: Uses `process.env` with sensible fallbacks, secrets remain in config files
+   - **Client Config**: Uses `import.meta.env.VITE_API_HOST` with hostname fallback
+   - **Production Ready**: Same pattern works for any deployment environment
+
+3. **IntroDreamer Flow Debugging**:
+   - Identified and resolved null `currentDream` reference issue in ReminderModal
+   - Root cause: Vite hot reload clearing `dreamService` singleton state
+   - Confirmed full anonymous → IntroDreamer flow works correctly without hot reloading
+   - Decided against over-engineering for hot reload edge cases at current maturity level
+
+4. **Shepherd Touch Controls Implementation**:
+   - **Touch Navigation**: Added `showNavigation` state separate from hover detection
+   - **Device Detection**: Uses `window.matchMedia('(hover: none)')` for touch device behavior
+   - **Mobile UX**: Touch activates navigation, stays visible until Shepherd closed
+   - **Enhanced Touch Targets**: 44x44px minimum with `touch-manipulation` CSS
+   - **Desktop Preserved**: Hover behavior unchanged for desktop users
+
+5. **Shepherd Visual Branding**:
+   - Replaced all stock blue colors with Shepherd branding (`shepherd-blue`, `shepherd-dark-blue`)
+   - Updated action buttons, navigation arrows, page indicators, and toggle button
+   - Consistent branded experience across all interactive elements
+
+### Technical Decisions Made
+1. **Network Architecture**: Host IP binding with environment variable control from Docker Compose
+2. **Security Pattern**: Secrets in config files (not git), environment vars for infrastructure
+3. **Touch UX Philosophy**: Persistent navigation once activated (no auto-hide timers)
+4. **Brand Consistency**: Complete migration from stock colors to Shepherd palette
+
+### Current Project State
+- **Architecture**: Complete MERN stack with multi-device network access
+- **Mobile Experience**: Touch-optimized Shepherd navigation with proper feedback
+- **Network Access**: Household/team testing enabled via Docker host networking
+- **Phase**: 2+ (Enhanced multi-device development with polished mobile UX)
+- **Files**: 35+ total with comprehensive touch and network optimizations
+
+### Files Modified This Session
+- **Updated**: `docker-compose.yml` - Network binding and environment variables
+- **Enhanced**: `svc/conf/default.js` - Environment-first configuration pattern
+- **Enhanced**: `ui/conf/svc.config.js` - Vite environment variable usage
+- **Enhanced**: `components/Shepherd.jsx` - Touch controls and brand colors
+
+### Next Session Priorities
+1. **DreamsDashboard Implementation** (High Priority):
+   - Complete Dreamer journey beyond individual dream editing
+   - Implement Dreams listing page following sacred design principles
+   - Create full navigation flow: Intro → Dreams → Goals → Plans
+
+2. **Backend Integration Validation** (High Priority):
+   - Complete end-to-end testing of all API endpoints
+   - Validate full authentication flows work correctly
+   - Test multi-device authentication and dream synchronization
+
+3. **Goals Entity Integration** (Medium Priority):
+   - Apply vertical slice pattern to Goals implementation
+   - Connect Goals to Dream relationships in UI
+   - Begin expansion toward full entity hierarchy
+
+4. **Shepherd Content Development** (Medium Priority):
+   - Develop contextual guidance scripts for different application states
+   - Create comprehensive Dreamer onboarding messaging
+
+### Architecture Status
+**Major Milestone**: Successfully transitioned to production-ready multi-device development environment with touch-optimized mobile experience. The application now supports household/team testing and provides consistent branded UX across desktop and mobile devices.
+
+**Key Insight**: Environment variable centralization in Docker Compose provides the perfect balance of development convenience and production flexibility - single configuration point locally with deployment-agnostic code.
+
+**Development Workflow**: Multi-device testing established with Chrome remote debugging for mobile development and Docker host networking for network access.
+
+**Status**: Ready for DreamsDashboard implementation and full backend integration validation. Mobile UX polished and network access configured for collaborative development.

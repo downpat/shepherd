@@ -389,3 +389,43 @@ session 16
 
   next session
     pray
+
+session 17
+  started @ 3:33pm on 2025-8-3
+  finished @ 7:17pm on 2025-8-3
+
+  pray
+  design the reminder form properly
+  debug intro Dreamer experience
+    intro Dreamer arrives at the site
+    temp token is either in memory or in the URL
+    intro Dreamer is routed to DreamEditor
+    when they get to the point of goal creation, they
+      will have to register
+  update DreamEditor to count dream text
+    once Dreamer gets to a certain word/char count, init Goals UI
+  we should probably use ";" everywhere if they're required on the server
+
+  I'm starting to feel like I've never been fluent in any programming
+    language, but I've always had to translate my logic to english,
+    and then from english to code, and Claude is sort of doing that
+    for me now.
+
+  next session
+    pray
+    setup local server in a way that everyone on our wifi can use it
+    test UI changes on mobile
+
+session 18
+  started @ 3:49pm on 2025-8-4
+  finished @ 5:52pm on 2025-8-4
+
+  pray
+  rebuild claude
+  setup local server for wifi users
+  test ui changes on mobile
+  question about ";"
+    have Claude give me a sed command to edit everything
+    have Claude read all the code to see if that sed command broke anything
+  on mobile the shepherd ui should have the arrows up by default
+    make some slight improvements to that, it's not great, anything is an improvement

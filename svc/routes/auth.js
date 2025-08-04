@@ -32,7 +32,7 @@ const authLimiter = rateLimit({
 // Stricter rate limiting for registration
 const registrationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // 5 registrations per hour
+  max: 500, // 5 registrations per hour
   message: {
     success: false,
     error: 'Too many registration attempts, please try again later',

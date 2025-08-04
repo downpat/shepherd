@@ -5,9 +5,11 @@ services:
     image: shepherd-db
     container_name: shepherd-db
     ports:
-      - "27017:27017"
+      - "0.0.0.0:27017:27017"
     volumes:
       - /home/pat/Development/shepherd/data:/data/db
+    environment:
+      - MONGODB_DATABASE=dreamshepherd
     networks:
       - shepherd-network
 
@@ -15,9 +17,15 @@ services:
     image: shepherd-svc
     container_name: shepherd-svc
     ports:
-      - "3001:3001"
+      - "0.0.0.0:3001:3001"
     volumes:
       - /home/pat/Development/shepherd/app-repo/svc:/app
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://shepherd-db:27017/dreamshepherd
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3001
+      - CORS_ORIGIN=true
     depends_on:
       - shepherd-db
     networks:
@@ -27,9 +35,12 @@ services:
     image: shepherd-ui
     container_name: shepherd-ui
     ports:
-      - "5173:5173"
+      - "0.0.0.0:5173:5173"
     volumes:
       - /home/pat/Development/shepherd/app-repo/ui:/app
+    environment:
+      - VITE_API_HOST=http://192.168.0.133:3001
+      - VITE_NODE_ENV=development
     networks:
       - shepherd-network
 

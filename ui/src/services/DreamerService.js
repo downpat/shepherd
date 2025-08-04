@@ -9,6 +9,9 @@ import config from '../../conf/svc.config.js'
 
 import { createDreamer, updateDreamer, validateDreamer } from '../domain/Dreamer.js'
 
+// localStorage key for tempToken persistence
+const TEMP_TOKEN_STORAGE_KEY = 'dreamshepherd_temp_token'
+
 class DreamerService {
   constructor() {
     this.currentDreamer = null
@@ -29,187 +32,198 @@ class DreamerService {
   }
 
   async fetchDreamer(tempToken = '') {
-    //TODO: Update this method when we understand how to check status of response
-
-    const newDreamer = createDreamer({ type: 'anonymous' })
-
-    if(tempToken) {
-      //Hit /auth/intro/:token and get intro dreamer
-      const resp = await fetch(`${config.host}/api/auth/intro/${tempToken}`)
-      console.log('Response from intro')
-      console.dir(resp)
-      return updateDreamer(newDreamer, {...resp.data, type: 'intro'})
-    }
-
-    //Hit /auth/me and get full dreamer
-    if(this.accessJwt) {
-      const resp = await fetch(`${config.host}/api/auth/me`, {
-        headers: { 'Authorization': `Bearer ${this.accessJwt}` }
-      })
-      console.log('Response from auth/me')
-      console.dir(resp)
-      return updateDreamer(newDreamer, {...resp.data, type: 'normal'})
-    }
-
-    //If response from /auth/me is not 200, try to refresh at /auth/refresh
-    const resp = await fetch(`${config.host}/api/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include' // Include httpOnly cookies
-    })
-
-    console.log('Response from auth/refresh')
-    console.dir(resp)
-    if(resp.status === 200) {
-      this.accessJwt = resp.data.accessToken
-      return updateDreamer(newDreamer, {...resp.data.dreamer, type: 'normal'})
-    }
-
-    //If response from auth/refresh is not 200, this is an anonymous user
-    return newDreamer
-
-  }
-
-  /**
-   * Main authentication method - determines auth type and delegates to specific method
-   * @param {Object} authData - Contains various auth tokens/credentials
-   * @returns {Object} { isAuthenticated: boolean, dreamer: Object|null, lastDreamSlug: string|null }
-   */
-  async authenticateDreamer(authData = {}) {
     try {
-      // Try JWT authentication first (fastest)
-      if (authData.jwtToken) {
-        return await this.authenticateJWT(authData.jwtToken)
+      // Try JWT authentication first (if we have an access token)
+      if (this.accessJwt) {
+        const jwtDreamer = await this.fetchJWTDreamer()
+        if (jwtDreamer) {
+          return jwtDreamer
+        }
       }
 
       // Try refresh token authentication
-      if (authData.refreshToken || authData.attemptRefresh) {
-        return await this.authenticateRefresh()
+      const refreshDreamer = await this.fetchRefreshDreamer()
+      if (refreshDreamer) {
+        return refreshDreamer
       }
 
-      // Try tempToken authentication (IntroDreamer)
-      if (authData.tempToken) {
-        return await this.authenticateTemp(authData.tempToken)
+      // Finally, try IntroDreamer authentication (with tempToken or localStorage)
+      const introDreamer = await this.fetchIntroDreamer(tempToken)
+      if (introDreamer) {
+        return introDreamer
       }
 
-      // Try username/password authentication
-      if (authData.username && authData.password) {
-        return await this.authenticatePassword(authData.username, authData.password)
+      // If all authentication methods fail, return anonymous dreamer
+      return createDreamer({ type: 'anonymous' })
+
+    } catch (error) {
+      console.error('fetchDreamer failed:', error)
+      return createDreamer({ type: 'anonymous' })
+    }
+  }
+
+  /**
+   * Attempt JWT authentication with /api/auth/me
+   * @returns {Object|null} Authenticated dreamer or null if failed
+   */
+  async fetchJWTDreamer() {
+    try {
+      const requestOptions = {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.accessJwt}`,
+          'Content-Type': 'application/json'
+        }
       }
 
-      // No authentication data provided - anonymous user
-      return this.createAnonymousResult()
+      console.log('Attempting JWT authentication with /api/auth/me')
+      const response = await fetch(`${config.host}/api/auth/me`, requestOptions)
 
+      if (response.ok) {
+        const responseData = await response.json()
+        console.log('JWT authentication successful:', responseData)
+        
+        const dreamerData = responseData.data || responseData
+        return updateDreamer(createDreamer({ type: 'anonymous' }), {
+          ...dreamerData,
+          type: 'normal'
+        })
+      } else {
+        console.log('JWT authentication failed, status:', response.status)
+        // Clear invalid JWT
+        this.accessJwt = ''
+        return null
+      }
     } catch (error) {
-      console.error('Authentication failed:', error)
-      return this.createAnonymousResult()
+      console.error('fetchJWTDreamer error:', error)
+      // Clear potentially invalid JWT
+      this.accessJwt = ''
+      return null
     }
   }
 
   /**
-   * Authenticate using JWT access token
+   * Attempt refresh token authentication with /api/auth/refresh
+   * @returns {Object|null} Authenticated dreamer or null if failed
    */
-  async authenticateJWT(jwtToken) {
+  async fetchRefreshDreamer() {
     try {
-      // TODO: Validate JWT token structure and expiration locally if needed
-      // For now, assume valid if present
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include' // Include httpOnly cookies
+      }
 
-      // PLACEHOLDER: Call API to validate JWT and get user data
-      // const response = await fetch('/api/auth/validate', {
-      //   headers: { 'Authorization': `Bearer ${jwtToken}` }
-      // })
+      console.log('Attempting refresh token authentication with /api/auth/refresh')
+      const response = await fetch(`${config.host}/api/auth/refresh`, requestOptions)
 
-      // TODO: Replace with actual API call
-      return this.createAuthenticatedResult({
-        id: 'jwt-user-id',
-        email: 'jwt-user@example.com',
-        type: 'dreamer'
-      }, 'sample-dream-slug')
-
+      if (response.ok) {
+        const responseData = await response.json()
+        console.log('Refresh token authentication successful:', responseData)
+        
+        // Update our JWT with the new access token
+        this.accessJwt = responseData.data?.accessToken || responseData.accessToken || ''
+        
+        const dreamerData = responseData.data?.dreamer || responseData.dreamer || {}
+        return updateDreamer(createDreamer({ type: 'anonymous' }), {
+          ...dreamerData,
+          type: 'normal'
+        })
+      } else {
+        console.log('Refresh token authentication failed, status:', response.status)
+        return null
+      }
     } catch (error) {
-      console.error('JWT authentication failed:', error)
-      return this.createAnonymousResult()
+      console.error('fetchRefreshDreamer error:', error)
+      return null
     }
   }
 
   /**
-   * Authenticate using refresh token (httpOnly cookie)
+   * Attempt IntroDreamer authentication with tempToken
+   * @param {string} tempToken - Optional tempToken parameter
+   * @returns {Object|null} Authenticated IntroDreamer or null if failed
    */
-  async authenticateRefresh() {
+  async fetchIntroDreamer(tempToken = '') {
     try {
-      // PLACEHOLDER: Call refresh endpoint with httpOnly cookies
-      // const response = await fetch('/api/auth/refresh', {
-      //   method: 'POST',
-      //   credentials: 'include' // Include httpOnly cookies
-      // })
-      //
-      // if (response.ok) {
-      //   const userData = await response.json()
-      //   const lastDreamSlug = await this.getLastDreamSlug(userData.id)
-      //   return this.createAuthenticatedResult(userData, lastDreamSlug)
-      // }
+      // First, ensure we should attempt IntroDreamer authentication
+      if (this.accessJwt) {
+        throw new Error('Cannot authenticate as IntroDreamer: Already have JWT token')
+      }
+      
+      if (this.currentDreamer && this.currentDreamer.type === 'normal') {
+        throw new Error('Cannot authenticate as IntroDreamer: Already authenticated as normal dreamer')
+      }
 
-      // TODO: Replace with actual API call
-      return this.createAnonymousResult()
+      // Get tempToken from parameter or localStorage
+      let tokenToUse = tempToken
+      if (!tokenToUse) {
+        tokenToUse = localStorage.getItem(TEMP_TOKEN_STORAGE_KEY)
+        if (!tokenToUse) {
+          console.log('No tempToken provided and none found in localStorage')
+          return null
+        }
+        console.log('Found tempToken in localStorage, attempting authentication')
+      }
 
+      // Validate tempToken format (basic check)
+      if (typeof tokenToUse !== 'string' || tokenToUse.length < 10) {
+        console.warn('Invalid tempToken format')
+        if (!tempToken) {
+          // Only remove from localStorage if we got it from there
+          localStorage.removeItem(TEMP_TOKEN_STORAGE_KEY)
+          console.log('Invalid tempToken removed from localStorage')
+        }
+        return null
+      }
+
+      const requestOptions = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+
+      console.log('Attempting IntroDreamer authentication with /api/auth/intro/:token')
+      const response = await fetch(`${config.host}/api/auth/intro/${tokenToUse}`, requestOptions)
+
+      if (response.ok) {
+        const responseData = await response.json()
+        console.log('IntroDreamer authentication successful:', responseData)
+        
+        const introDreamerData = responseData.data || responseData
+        this.tempToken = tokenToUse
+        
+        return updateDreamer(createDreamer({ type: 'anonymous' }), {
+          ...introDreamerData,
+          type: 'intro'
+        })
+      } else {
+        console.log('IntroDreamer authentication failed, status:', response.status)
+        
+        // Remove invalid tempToken from localStorage if we got it from there
+        if (!tempToken) {
+          localStorage.removeItem(TEMP_TOKEN_STORAGE_KEY)
+          console.log('Invalid tempToken removed from localStorage')
+        }
+        
+        return null
+      }
     } catch (error) {
-      console.error('Refresh token authentication failed:', error)
-      return this.createAnonymousResult()
+      console.error('fetchIntroDreamer error:', error)
+      
+      // If error and we got token from localStorage, remove it
+      if (!tempToken) {
+        localStorage.removeItem(TEMP_TOKEN_STORAGE_KEY)
+        console.log('TempToken removed from localStorage due to error')
+      }
+      
+      return null
     }
   }
 
-  /**
-   * Authenticate using tempToken (IntroDreamer)
-   */
-  async authenticateTemp(tempToken) {
-    try {
-      // PLACEHOLDER: Validate tempToken with backend
-      // const response = await fetch('/api/auth/temp-validate', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ tempToken })
-      // })
-      //
-      // if (response.ok) {
-      //   const introDreamerData = await response.json()
-      //   const lastDreamSlug = introDreamerData.dreamSlug // IntroDreamers typically have one dream
-      //   return this.createAuthenticatedResult(introDreamerData, lastDreamSlug)
-      // }
-
-      // TODO: Replace with actual API call
-      return this.createAnonymousResult()
-
-    } catch (error) {
-      console.error('TempToken authentication failed:', error)
-      return this.createAnonymousResult()
-    }
-  }
-
-  /**
-   * Authenticate using username/password
-   */
-  async authenticatePassword(username, password) {
-    try {
-      // PLACEHOLDER: Call login endpoint
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email: username, password })
-      // })
-      //
-      // if (response.ok) {
-      //   const userData = await response.json()
-      //   const lastDreamSlug = await this.getLastDreamSlug(userData.id)
-      //   return this.createAuthenticatedResult(userData, lastDreamSlug)
-      // }
-
-      // TODO: Replace with actual API call
-      return this.createAnonymousResult()
-
-    } catch (error) {
-      console.error('Password authentication failed:', error)
-      return this.createAnonymousResult()
-    }
-  }
 
   /**
    * Get the last edited dream slug for authenticated user
@@ -229,42 +243,6 @@ class DreamerService {
     }
   }
 
-  /**
-   * Create successful authentication result
-   */
-  createAuthenticatedResult(dreamer, lastDreamSlug) {
-    this.currentDreamer = dreamer
-    this.notifyListeners('authStateChanged', { isAuthenticated: true, dreamer })
-
-    return {
-      isAuthenticated: true,
-      dreamer,
-      lastDreamSlug,
-      hasSeenIntro: true // If they're authenticated, they've been here before
-    }
-  }
-
-  /**
-   * Create anonymous user result
-   */
-  createAnonymousResult() {
-    this.currentDreamer = null
-    this.notifyListeners('authStateChanged', { isAuthenticated: false, dreamer: null })
-
-    return {
-      isAuthenticated: false,
-      dreamer: null,
-      lastDreamSlug: null,
-      hasSeenIntro: false
-    }
-  }
-
-  /**
-   * Get current dreamer
-   */
-  getCurrentDreamer() {
-    return this.currentDreamer
-  }
 
   /**
    * Create an intro dreamer via API call
@@ -273,7 +251,9 @@ class DreamerService {
    * @param {string} reminderTime - Time string for reminder (optional)
    * @returns {Object} { success: boolean, tempToken: string|null, dreamer: Object|null, errors: Array }
    */
-  async createIntroDreamer(email, reminderDate = null, reminderTime = null) {
+  async createIntroDreamer(email, dreamTitle, dreamVision = null,
+      reminderDate = null, reminderTime = null) {
+
     try {
       // Create and validate dreamer object first
       const introDreamer = createDreamer({
@@ -293,8 +273,13 @@ class DreamerService {
 
       // Prepare API request data
       const requestData = {
-        email: introDreamer.email
+        email: introDreamer.email,
+        dreamTitle: dreamTitle
       };
+
+      if(dreamVision) {
+        requestData.dreamVision = dreamVision
+      }
 
       // Add reminder scheduling if provided
       if (reminderDate && reminderTime) {
@@ -314,19 +299,26 @@ class DreamerService {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log('Intro dreamer creation response:', responseData);
+        const introDreamerData = responseData.data
+        console.log('Intro dreamer creation response:', responseData.data);
 
         // Update current dreamer and temp token
         this.currentDreamer = updateDreamer(introDreamer, {
           type: 'intro',
-          email: responseData.email || introDreamer.email
+          email: introDreamerData.email || introDreamer.email
         });
-        this.tempToken = responseData.tempToken || '';
+        this.tempToken = introDreamerData.tempToken || '';
+
+        // Save tempToken to localStorage for automatic re-authentication
+        if (this.tempToken) {
+          localStorage.setItem(TEMP_TOKEN_STORAGE_KEY, this.tempToken)
+          console.log('Saved tempToken to localStorage for automatic re-authentication')
+        }
 
         // Notify listeners of auth state change
-        this.notifyListeners('authStateChanged', { 
-          isAuthenticated: true, 
-          dreamer: this.currentDreamer 
+        this.notifyListeners('authStateChanged', {
+          isAuthenticated: true,
+          dreamer: this.currentDreamer
         });
 
         return {

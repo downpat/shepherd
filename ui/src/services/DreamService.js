@@ -6,6 +6,7 @@
 import config from '../../conf/svc.config.js'
 
 import { createDream, updateDream, validateDream } from '../domain/Dream.js'
+import { generateUUID } from '../utils/device.js'
 
 class DreamService {
   constructor() {
@@ -19,6 +20,103 @@ class DreamService {
     if (!this.isInitialized) {
       await this.fetchDreams()
       this.isInitialized = true
+    }
+  }
+
+  /**
+   * Initialize DreamService based on the authenticated dreamer type
+   * @param {Object} dreamer - The authenticated dreamer object
+   */
+  async initForDreamer(dreamer) {
+    try {
+      // Clear any existing state
+      this.dreams.clear()
+      this.currentDream = null
+
+      if (!dreamer) {
+        console.log('DreamService: No dreamer provided, initializing as anonymous')
+        this.isInitialized = true
+        return
+      }
+
+      switch (dreamer.type) {
+        case 'anonymous':
+          console.log('DreamService: Initializing for anonymous dreamer - empty state')
+          // Keep dreams and currentDream empty for anonymous users
+          break
+
+        case 'intro':
+          console.log('DreamService: Initializing for intro dreamer with saved dream data')
+          await this.initForIntroDreamer(dreamer)
+          break
+
+        case 'normal':
+          console.log('DreamService: Normal dreamer initialization - TODO: implement API fetch')
+          // TODO: Implement normal dreamer flow
+          // This will fetch dreams from API for authenticated normal dreamers
+          break
+
+        default:
+          console.warn('DreamService: Unknown dreamer type:', dreamer.type)
+          break
+      }
+
+      this.isInitialized = true
+      this.notifyListeners('dreamServiceInitialized', { dreamer, dreamCount: this.dreams.size })
+
+    } catch (error) {
+      console.error('DreamService.initForDreamer failed:', error)
+      // Initialize with empty state on error
+      this.dreams.clear()
+      this.currentDream = null
+      this.isInitialized = true
+    }
+  }
+
+  /**
+   * Initialize DreamService for IntroDreamer with their saved dream
+   * @param {Object} introDreamer - The intro dreamer with dream data
+   */
+  async initForIntroDreamer(introDreamer) {
+    try {
+      // Extract dream data from introDreamer (adjust field names based on API response)
+      const dreamTitle = introDreamer.dreamTitle || introDreamer.title || 'My Dream'
+      const dreamVision = introDreamer.dreamVision || introDreamer.vision || ''
+
+      // Create dream object using domain layer with generated ID
+      const dreamId = generateUUID()
+      const dreamData = {
+        id: dreamId,
+        title: dreamTitle,
+        vision: dreamVision
+      }
+
+      const dream = createDream(dreamData)
+
+      // Validate the dream
+      const validation = validateDream(dream)
+      if (!validation.isValid) {
+        console.error('Invalid dream created for IntroDreamer:', validation.errors)
+        throw new Error(`Invalid dream: ${validation.errors.join(', ')}`)
+      }
+
+      // Add dream to service storage
+      this.dreams.set(dream.id, dream)
+      this.currentDream = dream
+
+      console.log('DreamService: Successfully initialized IntroDreamer dream:', {
+        id: dream.id,
+        title: dream.title,
+        slug: dream.slug
+      })
+
+      // Notify listeners
+      this.notifyListeners('dreamSaved', dream)
+      this.notifyListeners('currentDreamChanged', dream)
+
+    } catch (error) {
+      console.error('DreamService.initForIntroDreamer failed:', error)
+      throw error
     }
   }
 
@@ -129,6 +227,72 @@ class DreamService {
     } catch (error) {
       console.error('Failed to delete dream:', error)
       throw error
+    }
+  }
+
+  // Current dream management
+  setCurrentDream(dream) {
+    this.currentDream = dream
+    this.notifyListeners('currentDreamChanged', dream)
+  }
+
+  getCurrentDream() {
+    return this.currentDream
+  }
+
+  // Update current dream's title in memory
+  updateCurrentDreamTitle(newTitle) {
+    if (!this.currentDream) {
+      console.warn('DreamService.updateCurrentDreamTitle: No current dream set')
+      return false
+    }
+
+    try {
+      const updatedDream = updateDream(this.currentDream, { title: newTitle })
+      const validation = validateDream(updatedDream)
+      
+      if (validation.isValid) {
+        this.currentDream = updatedDream
+        // Update in memory storage
+        this.dreams.set(this.currentDream.id, this.currentDream)
+        this.notifyListeners('dreamUpdated', this.currentDream)
+        this.notifyListeners('currentDreamChanged', this.currentDream)
+        return true
+      } else {
+        console.warn('DreamService.updateCurrentDreamTitle: Invalid title update', validation.errors)
+        return false
+      }
+    } catch (error) {
+      console.error('DreamService.updateCurrentDreamTitle: Error updating title', error)
+      return false
+    }
+  }
+
+  // Update current dream's vision in memory
+  updateCurrentDreamVision(newVision) {
+    if (!this.currentDream) {
+      console.warn('DreamService.updateCurrentDreamVision: No current dream set')
+      return false
+    }
+
+    try {
+      const updatedDream = updateDream(this.currentDream, { vision: newVision })
+      const validation = validateDream(updatedDream)
+      
+      if (validation.isValid) {
+        this.currentDream = updatedDream
+        // Update in memory storage
+        this.dreams.set(this.currentDream.id, this.currentDream)
+        this.notifyListeners('dreamUpdated', this.currentDream)
+        this.notifyListeners('currentDreamChanged', this.currentDream)
+        return true
+      } else {
+        console.warn('DreamService.updateCurrentDreamVision: Invalid vision update', validation.errors)
+        return false
+      }
+    } catch (error) {
+      console.error('DreamService.updateCurrentDreamVision: Error updating vision', error)
+      return false
     }
   }
 

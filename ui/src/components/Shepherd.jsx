@@ -17,6 +17,7 @@ function Shepherd({
   const [showSubmessage, setShowSubmessage] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
+  const [showNavigation, setShowNavigation] = useState(false)
   const [timer, setTimer] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalRenderFunction, setModalRenderFunction] = useState(null)
@@ -84,14 +85,25 @@ function Shepherd({
     setShowSubmessage(false)
   }
 
-  // Handle hover events
+  // Handle hover events (desktop)
   const handleMouseEnter = () => {
     setIsHovered(true)
+    setShowNavigation(true)
     stopTimer()
   }
 
   const handleMouseLeave = () => {
     setIsHovered(false)
+    // Keep navigation visible on touch devices
+    if (!window.matchMedia('(hover: none)').matches) {
+      setShowNavigation(false)
+    }
+  }
+
+  // Handle touch events (mobile)
+  const handleTouchStart = () => {
+    setShowNavigation(true)
+    stopTimer() // Stop auto-cycling when user touches
   }
 
   // Handle modal actions
@@ -126,6 +138,7 @@ function Shepherd({
       setShowSubmessage(false)
       setCurrentIndex(0)
       setIsHovered(false)
+      setShowNavigation(false)
     }
   }, [isOpen])
 
@@ -134,7 +147,15 @@ function Shepherd({
     setCurrentIndex(0)
     setShowSubmessage(false)
     setIsHovered(false)
+    setShowNavigation(false)
   }, [script])
+
+  // Show navigation initially on touch devices if multiple messages
+  useEffect(() => {
+    if (isOpen && script.length > 1 && window.matchMedia('(hover: none)').matches) {
+      setShowNavigation(true)
+    }
+  }, [isOpen, script])
 
   const renderContent = () => {
     if (animationType === 'type') {
@@ -157,7 +178,7 @@ function Shepherd({
           {currentMessage.buttonText && currentMessage.renderModal && (
             <button
               onClick={() => handleActionClick(currentMessage.renderModal)}
-              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+              className="mt-4 shepherd-dark-blue-bg hover:shepherd-blue-bg text-white px-4 py-2 rounded transition-colors"
             >
               {currentMessage.buttonText}
             </button>
@@ -184,7 +205,7 @@ function Shepherd({
           {currentMessage.buttonText && currentMessage.renderModal && (
             <button
               onClick={() => handleActionClick(currentMessage.renderModal)}
-              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+              className="mt-4 shepherd-dark-blue-bg hover:shepherd-blue-bg text-white px-4 py-2 rounded transition-colors"
             >
               {currentMessage.buttonText}
             </button>
@@ -206,7 +227,7 @@ function Shepherd({
           {currentMessage.buttonText && currentMessage.renderModal && (
             <button
               onClick={() => handleActionClick(currentMessage.renderModal)}
-              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+              className="mt-4 shepherd-dark-blue-bg hover:shepherd-blue-bg text-white px-4 py-2 rounded transition-colors"
             >
               {currentMessage.buttonText}
             </button>
@@ -247,18 +268,19 @@ function Shepherd({
             className="w-full bg-white border-b border-blue-200/40 shadow-sm"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
           >
             <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-6 sm:pt-8 pb-2">
               {/* Shepherd content with navigation */}
               <div className="flex items-start">
-                {/* Previous arrow - show if multiple messages and hovered */}
-                {script.length > 1 && isHovered && (
+                {/* Previous arrow - show if multiple messages and navigation visible */}
+                {script.length > 1 && showNavigation && (
                   <motion.button
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={handlePrevious}
-                    className="flex-shrink-0 mt-2 mr-4 shepherd-dark-blue hover:text-blue-600 transition-colors"
+                    className="flex-shrink-0 mt-2 mr-4 shepherd-dark-blue hover:shepherd-blue transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                     aria-label="Previous message"
                   >
                     <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,8 +293,8 @@ function Shepherd({
                 <div className="text-left flex-1">
                   {renderContent()}
 
-                  {/* Page indicator for multiple messages - only show when hovered */}
-                  {script.length > 1 && isHovered && (
+                  {/* Page indicator for multiple messages - show when navigation visible */}
+                  {script.length > 1 && showNavigation && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -283,7 +305,7 @@ function Shepherd({
                         <div
                           key={index}
                           className={`w-2 h-2 rounded-full transition-colors ${
-                            index === currentIndex ? 'bg-blue-400' : 'bg-gray-200'
+                            index === currentIndex ? 'shepherd-blue-bg' : 'bg-gray-200'
                           }`}
                         />
                       ))}
@@ -291,14 +313,14 @@ function Shepherd({
                   )}
                 </div>
 
-                {/* Next arrow - show if multiple messages and hovered */}
-                {script.length > 1 && isHovered && (
+                {/* Next arrow - show if multiple messages and navigation visible */}
+                {script.length > 1 && showNavigation && (
                   <motion.button
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={handleNext}
-                    className="flex-shrink-0 mt-2 ml-4 shepherd-dark-blue hover:text-blue-600 transition-colors"
+                    className="flex-shrink-0 mt-2 ml-4 shepherd-dark-blue hover:shepherd-blue transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                     aria-label="Next message"
                   >
                     <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,7 +338,7 @@ function Shepherd({
       <div className="w-full flex justify-center">
         <motion.button
           onClick={onToggle}
-          className="bg-white border border-blue-200/40 shadow-sm rounded-b-lg px-4 py-2 text-gray-400 hover:text-blue-500 hover:border-blue-300/60 transition-all duration-200"
+          className="bg-white border border-blue-200/40 shadow-sm rounded-b-lg px-6 py-3 text-gray-400 hover:shepherd-blue hover:border-slate-300 transition-all duration-200 touch-manipulation min-h-[44px] min-w-[44px]"
           whileHover={{ y: -1 }}
           whileTap={{ scale: 0.95 }}
           aria-label={isOpen ? "Close Shepherd" : "Open Shepherd"}
@@ -344,13 +366,14 @@ function Shepherd({
             />
 
             {/* Modal */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 min-h-[500px]"
-            >
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-xl shadow-2xl max-w-4xl w-full min-h-[500px]"
+              >
               {/* Close button */}
               <div className="flex justify-end p-4 pb-0">
                 <button
@@ -369,6 +392,7 @@ function Shepherd({
                 {modalRenderFunction(handleModalClose)}
               </div>
             </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
