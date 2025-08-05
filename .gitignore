@@ -1,3 +1,7 @@
 *.sw*
+*scratch*
 ui/node_modules
 svc/node_modules
+
+svc/conf
+ui/conf/svc.config.js

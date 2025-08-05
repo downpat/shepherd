@@ -35,7 +35,7 @@ services:
     image: shepherd-ui
     container_name: shepherd-ui
     ports:
-      - "0.0.0.0:5173:5173"
+      - "0.0.0.0:80:5173"
     volumes:
       - /home/pat/Development/shepherd/app-repo/ui:/app
     environment:

@@ -102,13 +102,16 @@ const DreamEditor = ({ debugMode = false }) => {
     console.log('Use effect running');
     const loadDream = async () => {
       try {
+
+        //Update DreamEditor state for the given slug
         setLoading(true)
         const dreamData = await dreamService.getDreamBySlug(slug)
-        dreamService.setCurrentDream(dreamData)
         setDream(dreamData)
         setTitle(dreamData.title || '')
+
         // Set this dream as the current dream in the service
         dreamService.setCurrentDream(dreamData)
+
         // Set editor content - handle both JSON and string vision data
         if (editor && dreamData.vision) {
           try {
