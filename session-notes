@@ -459,3 +459,16 @@ session 20
     but do we need an email address for an intro user?
       we could remind with browser notifications
       we could save using the tempToken
+
+session 21
+  started @ 5:26pm on 2025-8-7
+  finished @ 7:08pm on 2025-8-7
+
+  start working through intro dreamer changes
+  we might need to update the DreamShepherd.jsx init procedure for Dreamers after this
+  reminder modal should ask: I will remind you. Choose your method:
+    email? update your calendar?
+
+  next session
+    reset browser states and debug recent changes
+    auto-save featured in DreamEditor

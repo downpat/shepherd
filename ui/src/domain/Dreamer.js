@@ -6,13 +6,13 @@ const isValidEmail = (email) => {
 
 export const createDreamer = ({
   type, //normal, intro, anonymous
-  email = '', // Required for intro and normal, empty for anonymous
+  email = '', // Required for normal, optional for intro, empty for anonymous
   createdAt,
   updatedAt,
 }) => {
   return {
     type,
-    email: email.trim().toLowerCase(),
+    email: email ? email.trim().toLowerCase() : '',
     createdAt: createdAt || new Date().toISOString(),
     updatedAt: updatedAt || new Date().toISOString()
   }
@@ -27,7 +27,7 @@ export const updateDreamer = (dreamer, updates) => {
 
   // Normalize email if it was updated
   if (updates.email !== undefined) {
-    updatedDreamer.email = updates.email.trim().toLowerCase();
+    updatedDreamer.email = updates.email ? updates.email.trim().toLowerCase() : '';
   }
 
   return updatedDreamer;
@@ -37,11 +37,16 @@ export const validateDreamer = (dreamer) => {
   const errors = [];
 
   // Email validation based on dreamer type
-  if (dreamer.type === 'intro' || dreamer.type === 'normal') {
+  if (dreamer.type === 'normal') {
+    // Email is required for normal dreamers
     if (!dreamer.email || dreamer.email.trim().length === 0) {
       errors.push('Email address is required');
     }
+  }
 
+  // For intro dreamers, email is optional
+  if (dreamer.type === 'intro' || dreamer.type === 'normal') {
+    // If email is provided, validate its format and length
     if (dreamer.email && !isValidEmail(dreamer.email)) {
       errors.push('Please enter a valid email address');
     }

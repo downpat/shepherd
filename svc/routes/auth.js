@@ -48,25 +48,30 @@ router.post('/intro', registrationLimiter, async (req, res) => {
     const { email, dreamTitle, dreamVision, reminderDateTime } = req.body;
 
     // Validation
-    if (!email || !dreamTitle) {
+    if (!dreamTitle) {
       return res.status(400).json({
         success: false,
-        error: 'Email and dream title are required'
+        error: 'Dream title is required'
       });
     }
 
-    // Check if email already exists as full Dreamer
-    const existingDreamer = await Dreamer.findOne({ email: email.toLowerCase() });
-    if (existingDreamer) {
-      return res.status(409).json({
-        success: false,
-        error: 'An account with this email already exists. Please log in instead.',
-        shouldRedirect: '/login'
-      });
-    }
+    let introDreamer = null;
 
-    // Check if IntroDreamer already exists with this email
-    let introDreamer = await IntroDreamer.findByEmail(email);
+    // Only check for existing accounts if email is provided
+    if (email) {
+      // Check if email already exists as full Dreamer
+      const existingDreamer = await Dreamer.findOne({ email: email.toLowerCase() });
+      if (existingDreamer) {
+        return res.status(409).json({
+          success: false,
+          error: 'An account with this email already exists. Please log in instead.',
+          shouldRedirect: '/login'
+        });
+      }
+
+      // Check if IntroDreamer already exists with this email
+      introDreamer = await IntroDreamer.findByEmail(email);
+    }
 
     if (introDreamer) {
       // Update existing IntroDreamer session
@@ -86,12 +91,18 @@ router.post('/intro', registrationLimiter, async (req, res) => {
         finalVision = JSON.stringify(dreamVision);
       }
 
-      introDreamer = new IntroDreamer({
-        email: email.toLowerCase(),
+      const createData = {
         dreamTitle,
-        dreamVision: finalVision  || '',
+        dreamVision: finalVision || '',
         reminderDateTime: reminderDate
-      });
+      };
+
+      // Only add email if provided
+      if (email) {
+        createData.email = email.toLowerCase();
+      }
+
+      introDreamer = new IntroDreamer(createData);
 
       introDreamer.generateNewTempToken();
 

@@ -11,10 +11,17 @@ const introDreamerSchema = new mongoose.Schema({
   // === MINIMAL IDENTITY ===
   email: {
     type: String,
-    required: [true, 'Email is required for reminders'],
+    required: false, // Now optional - not needed for calendar reminders
     lowercase: true,
     trim: true,
-    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid email']
+    validate: {
+      validator: function(email) {
+        // Only validate format if email is provided
+        if (!email) return true;
+        return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+      },
+      message: 'Please enter a valid email address'
+    }
   },
 
   // Session token for returning without password

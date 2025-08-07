@@ -2,18 +2,21 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import dreamService from '../services/DreamService.js'
 import dreamerService from '../services/DreamerService.js'
+import { createDreamReminderPackage, validateReminderDate } from '../utils/calendar.js'
 
 /**
  * ReminderModal - Dream reminder functionality
- * Allows users to set email reminders to return to their dreams
+ * Creates calendar reminders with embedded return URLs - email optional
  */
 function ReminderModal({ onClose }) {
-  const [formState, setFormState] = useState('form') // 'form', 'loading', 'success', 'error'
+  const [formState, setFormState] = useState('form') // 'form', 'email', 'loading', 'success', 'error'
   const [email, setEmail] = useState('')
   const [reminderDate, setReminderDate] = useState('')
   const [reminderTime, setReminderTime] = useState('')
   const [errors, setErrors] = useState([])
   const [tempToken, setTempToken] = useState('')
+  const [returnUrl, setReturnUrl] = useState('')
+  const [reminderMethod, setReminderMethod] = useState('') // 'email', 'google', 'outlook', 'apple', 'ics'
 
   // Get default date (tomorrow) and time (9:00 AM)
   const getDefaultDateTime = () => {
@@ -47,29 +50,94 @@ function ReminderModal({ onClose }) {
     setReminderTime(e.target.value)
   }
 
+  const handleEmailOption = () => {
+    setReminderMethod('email')
+    setFormState('email')
+  }
+
+  const handleCalendarOption = async (method) => {
+    setReminderMethod(method)
+    setFormState('loading')
+
+    try {
+      // Get current dreamer for tempToken
+      const dreamer = await dreamerService.getDreamer()
+      if (!dreamer || dreamer.type === 'anonymous') {
+        setErrors(['Please create your dream first before setting reminders.'])
+        setFormState('error')
+        return
+      }
+
+      // Create reminder package
+      const reminderDateTime = new Date(`${reminderDate}T${reminderTime}`)
+      const reminderPackage = createDreamReminderPackage({
+        dreamTitle: dreamService.currentDream?.title || 'My Dream',
+        tempToken: dreamer.tempToken,
+        reminderDate: reminderDateTime
+      })
+
+      setReturnUrl(reminderPackage.returnUrl)
+
+      // Handle different calendar methods
+      switch (method) {
+        case 'google':
+          // For Google Calendar, we'll still download the ICS since Google Calendar web doesn't have a direct API
+          reminderPackage.download()
+          break
+        case 'outlook':
+          reminderPackage.download()
+          break
+        case 'apple':
+          reminderPackage.download()
+          break
+        case 'ics':
+          reminderPackage.download()
+          break
+        default:
+          throw new Error('Unknown calendar method')
+      }
+
+      setFormState('success')
+    } catch (error) {
+      console.error('Calendar reminder failed:', error)
+      setErrors(['Failed to create calendar reminder. Please try again.'])
+      setFormState('error')
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setFormState('loading')
     setErrors([])
 
     try {
-      const result = await dreamerService.createIntroDreamer(
+      // Update existing IntroDreamer with email and save current dream content
+      const result = await dreamerService.updateIntroDreamer(
         email,
-        dreamService.currentDream.title || '',
-        dreamService.currentDream.vision || null,
+        dreamService.currentDream?.title || '',
+        dreamService.currentDream?.vision || null,
         reminderDate,
         reminderTime
       )
 
       if (result.success) {
         setTempToken(result.tempToken)
+        // Generate return URL
+        const reminderDateTime = new Date(`${reminderDate}T${reminderTime}`)
+        const reminderPackage = createDreamReminderPackage({
+          dreamTitle: dreamService.currentDream?.title || 'My Dream',
+          tempToken: result.tempToken,
+          reminderDate: reminderDateTime,
+          dreamerEmail: email
+        })
+        setReturnUrl(reminderPackage.returnUrl)
         setFormState('success')
       } else {
         setErrors(result.errors)
         setFormState('error')
       }
     } catch (error) {
-      console.error('Reminder creation failed:', error)
+      console.error('Email reminder creation failed:', error)
       setErrors(['Something went wrong. Please try again.'])
       setFormState('error')
     }
@@ -108,28 +176,13 @@ function ReminderModal({ onClose }) {
             transition={{ duration: 0.3 }}
           >
             <h2 className="text-4xl font-bold shepherd-dark-blue mb-4">
-              Set Dream Reminder
+              Your Presence Here is Requested
             </h2>
             <p className="text-gray-600 mb-8 text-xl">
-              I'll send you a gentle reminder to return to your dream when it's convenient for you.
+              Please set a date for your return journey.
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Input */}
-              <div>
-                <label htmlFor="email" className="block text-xl font-medium shepherd-dark-blue mb-3">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  className="w-full px-6 py-4 text-xl border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="your@email.com"
-                  required
-                />
-              </div>
+            <div className="space-y-6">
 
               {/* Date and Time Inputs */}
               <div className="grid grid-cols-2 gap-4">
@@ -172,7 +225,91 @@ function ReminderModal({ onClose }) {
                 </div>
               )}
 
-              {/* Submit Button - Using Shepherd Blue */}
+              {/* Reminder Method Buttons */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleEmailOption}
+                    className="shepherd-dark-blue-bg hover:shepherd-blue-bg text-white font-semibold py-4 px-4 text-lg rounded-lg transition-colors"
+                  >
+                    📧 Email
+                  </button>
+                  <button
+                    onClick={() => handleCalendarOption('google')}
+                    className="shepherd-dark-blue-bg hover:shepherd-blue-bg text-white font-semibold py-4 px-4 text-lg rounded-lg transition-colors"
+                  >
+                    📅 Google Calendar
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => handleCalendarOption('outlook')}
+                    className="shepherd-dark-blue-bg hover:shepherd-blue-bg text-white font-semibold py-4 px-4 text-lg rounded-lg transition-colors"
+                  >
+                    📅 Outlook
+                  </button>
+                  <button
+                    onClick={() => handleCalendarOption('apple')}
+                    className="shepherd-dark-blue-bg hover:shepherd-blue-bg text-white font-semibold py-4 px-4 text-lg rounded-lg transition-colors"
+                  >
+                    📅 Apple Calendar
+                  </button>
+                  <button
+                    onClick={() => handleCalendarOption('ics')}
+                    className="shepherd-dark-blue-bg hover:shepherd-blue-bg text-white font-semibold py-4 px-4 text-lg rounded-lg transition-colors"
+                  >
+                    📅 Calendar .ics
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {formState === 'email' && (
+          <motion.div
+            key="email"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h2 className="text-4xl font-bold shepherd-dark-blue mb-4">
+              Your Presence Here is Requested
+            </h2>
+            <p className="text-gray-600 mb-8 text-xl">
+              Please provide your email for the reminder.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email Input */}
+              <div>
+                <label htmlFor="email" className="block text-xl font-medium shepherd-dark-blue mb-3">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  className="w-full px-6 py-4 text-xl border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="your@email.com"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              {/* Reminder Preview */}
+              {reminderDate && reminderTime && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-lg text-blue-800">
+                    <span className="font-medium">Reminder scheduled for:</span><br />
+                    {formatReminderDateTime()}
+                  </p>
+                </div>
+              )}
+
+              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full shepherd-dark-blue-bg hover:shepherd-blue-bg text-white font-semibold py-5 px-6 text-xl rounded-lg transition-colors transform hover:scale-105 active:scale-95"

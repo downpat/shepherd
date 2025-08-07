@@ -6,6 +6,7 @@ import AnimatedText from './AnimatedText.jsx'
 import Shepherd from './components/Shepherd.jsx'
 import { createDream } from './domain/Dream.js'
 import dreamService from './services/DreamService.js'
+import dreamerService from './services/DreamerService.js'
 import { isMobile, generateUUID } from './utils/device.js'
 
 function Intro({ debugMode = false }) {
@@ -71,12 +72,28 @@ function Intro({ debugMode = false }) {
     try {
       setIsCreatingDream(true)
 
-      // Create dream with generated UUID and title from user input
+      // Create IntroDreamer immediately (no email required)
+      const result = await dreamerService.createIntroDreamer(
+        null, // email (optional)
+        userInput, // dreamTitle
+        null // dreamVision (will be filled in DreamEditor)
+      )
+
+      if (!result.success) {
+        console.error('Failed to create IntroDreamer:', result.errors)
+        setIsCreatingDream(false)
+        return
+      }
+
+      // Create dream object for navigation
       const newDream = createDream({
         id: generateUUID(),
         title: userInput
       })
-      await dreamService.saveDream(newDream)
+
+      // Initialize dream service with the new IntroDreamer
+      const dreamer = await dreamerService.getDreamer()
+      await dreamService.initForDreamer(dreamer)
 
       // Add a brief pause to ensure finger lifts and prevent mobile autofocus
       await new Promise(resolve => setTimeout(resolve, 1600))

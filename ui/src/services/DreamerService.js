@@ -15,8 +15,8 @@ const TEMP_TOKEN_STORAGE_KEY = 'dreamshepherd_temp_token'
 class DreamerService {
   constructor() {
     this.currentDreamer = null
-    this.accessJwt = '' //Current user's access token, stored in memory
-    this.tempToken = '' //Temporary token for IntroUsers
+    this.accessJwt = '' //Current Dreamer's access token, stored in memory
+    this.tempToken = '' //Temporary token for IntroDreamers
     this.listeners = new Set() // Event listeners for auth state changes
   }
 
@@ -82,7 +82,7 @@ class DreamerService {
       if (response.ok) {
         const responseData = await response.json()
         console.log('JWT authentication successful:', responseData)
-        
+
         const dreamerData = responseData.data || responseData
         return updateDreamer(createDreamer({ type: 'anonymous' }), {
           ...dreamerData,
@@ -122,10 +122,10 @@ class DreamerService {
       if (response.ok) {
         const responseData = await response.json()
         console.log('Refresh token authentication successful:', responseData)
-        
+
         // Update our JWT with the new access token
         this.accessJwt = responseData.data?.accessToken || responseData.accessToken || ''
-        
+
         const dreamerData = responseData.data?.dreamer || responseData.dreamer || {}
         return updateDreamer(createDreamer({ type: 'anonymous' }), {
           ...dreamerData,
@@ -152,7 +152,7 @@ class DreamerService {
       if (this.accessJwt) {
         throw new Error('Cannot authenticate as IntroDreamer: Already have JWT token')
       }
-      
+
       if (this.currentDreamer && this.currentDreamer.type === 'normal') {
         throw new Error('Cannot authenticate as IntroDreamer: Already authenticated as normal dreamer')
       }
@@ -192,34 +192,34 @@ class DreamerService {
       if (response.ok) {
         const responseData = await response.json()
         console.log('IntroDreamer authentication successful:', responseData)
-        
+
         const introDreamerData = responseData.data || responseData
         this.tempToken = tokenToUse
-        
+
         return updateDreamer(createDreamer({ type: 'anonymous' }), {
           ...introDreamerData,
           type: 'intro'
         })
       } else {
         console.log('IntroDreamer authentication failed, status:', response.status)
-        
+
         // Remove invalid tempToken from localStorage if we got it from there
         if (!tempToken) {
           localStorage.removeItem(TEMP_TOKEN_STORAGE_KEY)
           console.log('Invalid tempToken removed from localStorage')
         }
-        
+
         return null
       }
     } catch (error) {
       console.error('fetchIntroDreamer error:', error)
-      
+
       // If error and we got token from localStorage, remove it
       if (!tempToken) {
         localStorage.removeItem(TEMP_TOKEN_STORAGE_KEY)
         console.log('TempToken removed from localStorage due to error')
       }
-      
+
       return null
     }
   }
@@ -256,10 +256,12 @@ class DreamerService {
 
     try {
       // Create and validate dreamer object first
-      const introDreamer = createDreamer({
-        type: 'intro',
-        email
-      });
+      const introDreamerData = { type: 'intro' };
+      if (email) {
+        introDreamerData.email = email;
+      }
+
+      const introDreamer = createDreamer(introDreamerData);
 
       const validation = validateDreamer(introDreamer);
       if (!validation.isValid) {
@@ -273,9 +275,13 @@ class DreamerService {
 
       // Prepare API request data
       const requestData = {
-        email: introDreamer.email,
         dreamTitle: dreamTitle
       };
+
+      // Only add email if provided
+      if (email) {
+        requestData.email = introDreamer.email;
+      }
 
       if(dreamVision) {
         requestData.dreamVision = dreamVision
@@ -342,6 +348,119 @@ class DreamerService {
 
     } catch (error) {
       console.error('Failed to create intro dreamer:', error);
+      return {
+        success: false,
+        tempToken: null,
+        dreamer: null,
+        errors: ['Network error. Please try again.']
+      };
+    }
+  }
+
+  /**
+   * Update existing IntroDreamer with new email and reminder information
+   * @param {string} email - Email address (optional)
+   * @param {string} dreamTitle - Dream title for update (optional)
+   * @param {string} dreamVision - Dream vision content (optional)
+   * @param {string} reminderDate - ISO date string for reminder (optional)
+   * @param {string} reminderTime - Time string for reminder (optional)
+   * @returns {Object} { success: boolean, tempToken: string|null, dreamer: Object|null, errors: Array }
+   */
+  async updateIntroDreamer(email = null, dreamTitle = null, dreamVision = null,
+      reminderDate = null, reminderTime = null) {
+
+    try {
+      // Ensure we have a current IntroDreamer to update
+      if (!this.tempToken) {
+        return {
+          success: false,
+          tempToken: null,
+          dreamer: null,
+          errors: ['No IntroDreamer session found to update']
+        };
+      }
+
+      // Validate email if provided (reusing validation logic from createIntroDreamer)
+      if (email) {
+        const introDreamerData = { type: 'intro', email };
+        const introDreamer = createDreamer(introDreamerData);
+        const validation = validateDreamer(introDreamer);
+        
+        if (!validation.isValid) {
+          return {
+            success: false,
+            tempToken: null,
+            dreamer: null,
+            errors: validation.errors
+          };
+        }
+      }
+
+      // Prepare API request data (same structure as createIntroDreamer)
+      const requestData = {};
+
+      if (email) {
+        requestData.email = email.trim().toLowerCase();
+      }
+      if (dreamTitle) {
+        requestData.dreamTitle = dreamTitle;
+      }
+      if (dreamVision) {
+        requestData.dreamVision = dreamVision;
+      }
+      if (reminderDate && reminderTime) {
+        requestData.reminderDateTime = `${reminderDate}T${reminderTime}`;
+      }
+
+      console.log('Updating intro dreamer with data:', requestData);
+
+      // Make API call to update intro dreamer (PUT instead of POST)
+      const response = await fetch(`${config.host}/api/auth/intro/${this.tempToken}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        const introDreamerData = responseData.data;
+        console.log('Intro dreamer update response:', responseData.data);
+
+        // Update current dreamer (similar to createIntroDreamer success handling)
+        this.currentDreamer = updateDreamer(this.currentDreamer || createDreamer({ type: 'intro' }), {
+          type: 'intro',
+          email: introDreamerData.email || (email ? email.trim().toLowerCase() : this.currentDreamer?.email || '')
+        });
+
+        // Notify listeners of auth state change (same as createIntroDreamer)
+        this.notifyListeners('authStateChanged', {
+          isAuthenticated: true,
+          dreamer: this.currentDreamer
+        });
+
+        return {
+          success: true,
+          tempToken: this.tempToken,
+          dreamer: this.currentDreamer,
+          errors: []
+        };
+      } else {
+        // Handle API errors (same error handling as createIntroDreamer)
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API error updating intro dreamer:', errorData);
+
+        return {
+          success: false,
+          tempToken: null,
+          dreamer: null,
+          errors: [errorData.error || 'Failed to update reminder']
+        };
+      }
+
+    } catch (error) {
+      console.error('Failed to update intro dreamer:', error);
       return {
         success: false,
         tempToken: null,
