@@ -34,8 +34,8 @@ const DreamEditor = ({ debugMode = false }) => {
   // Shepherd's script for Dream editing context
   const shepherdScript = [
     {
-      message: 'Let your vision flow',
-      submessage: 'Write freely about what you see when you imagine this dream fulfilled'
+      message: 'Your journey begins.',
+      submessage: 'Do not be afraid. I am here.'
     },
     {
       message: 'Dreams evolve with time',

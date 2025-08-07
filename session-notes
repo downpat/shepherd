@@ -448,3 +448,14 @@ session 19
         local db?
       intro dreamer
         save straight away
+
+session 20
+  started @ 5:34pm on 2025-8-6
+  finished @ 6:28pm on 2025-8-6
+
+  when to upgrade anonymous user to intro?
+    when they hit save, we ask for an email address
+    when they ask for a reminder, we ask for an email address
+    but do we need an email address for an intro user?
+      we could remind with browser notifications
+      we could save using the tempToken
