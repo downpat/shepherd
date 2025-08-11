@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import AnimatedText from '../AnimatedText.jsx'
+import AnimatedText from './AnimatedText.jsx'
 
 /**
  * Shepherd - Ubiquitous guidance component
@@ -21,8 +21,12 @@ function Shepherd({
   const [timer, setTimer] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalRenderFunction, setModalRenderFunction] = useState(null)
+  const [hasBeenSeen, setHasBeenSeen] = useState(false)
 
   const currentMessage = script[currentIndex] || { message: '', submessage: '' }
+
+  // Determine if staff should glow - when closed, has content, and hasn't been seen yet
+  const shouldGlow = !isOpen && (currentMessage.message || script.length > 0) && !hasBeenSeen
 
   // Calculate timer duration based on text length (1 second per 10 characters)
   const calculateTimerDuration = (message) => {
@@ -55,6 +59,7 @@ function Shepherd({
       setTimer(null)
     }
   }
+
 
   const handleMessageComplete = () => {
     if (currentMessage.submessage) {
@@ -131,7 +136,7 @@ function Shepherd({
     return stopTimer // Cleanup on unmount
   }, [isOpen, isHovered, currentIndex, script])
 
-  // Reset states when drawer closes or script changes
+  // Reset states when drawer closes or mark as seen when opened
   useEffect(() => {
     if (!isOpen) {
       stopTimer()
@@ -139,16 +144,25 @@ function Shepherd({
       setCurrentIndex(0)
       setIsHovered(false)
       setShowNavigation(false)
+    } else {
+      // Mark content as seen when Dreamer opens Shepherd
+      setHasBeenSeen(true)
     }
   }, [isOpen])
 
+  // Use a stable reference for script content to avoid unnecessary resets
+  const scriptContent = JSON.stringify(script)
+  
   useEffect(() => {
+    console.log('Script content changed - resetting seen state')
     stopTimer()
     setCurrentIndex(0)
     setShowSubmessage(false)
     setIsHovered(false)
     setShowNavigation(false)
-  }, [script])
+    // Reset seen state for new content
+    setHasBeenSeen(false)
+  }, [scriptContent])
 
   // Show navigation initially on touch devices if multiple messages
   useEffect(() => {
@@ -156,6 +170,11 @@ function Shepherd({
       setShowNavigation(true)
     }
   }, [isOpen, script])
+
+  // Debug logging - only when state changes
+  useEffect(() => {
+    console.log('Shepherd state changed:', { isOpen, hasBeenSeen, shouldGlow, messageExists: !!currentMessage.message })
+  }, [isOpen, hasBeenSeen, shouldGlow])
 
   const renderContent = () => {
     if (animationType === 'type') {
@@ -188,6 +207,7 @@ function Shepherd({
     } else if (animationType === 'fade') {
       return (
         <motion.div
+          data-testid="shepherd-message"
           key={currentIndex} // Force re-render for fade animation
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -261,6 +281,7 @@ function Shepherd({
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            data-testid="shepherd-panel"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -20, opacity: 0 }}
@@ -337,11 +358,28 @@ function Shepherd({
       {/* Toggle tab - always visible */}
       <div className="w-full flex justify-center">
         <motion.button
+          data-testid="shepherd-toggle"
           onClick={onToggle}
-          className="bg-white border border-blue-200/40 shadow-sm rounded-b-lg px-6 py-3 text-gray-400 hover:shepherd-blue hover:border-slate-300 transition-all duration-200 touch-manipulation min-h-[44px] min-w-[44px]"
+          className={`bg-white border rounded-b-lg px-6 py-3 hover:border-slate-300 transition-all duration-200 touch-manipulation min-h-[44px] min-w-[44px] ${
+            shouldGlow
+              ? 'border-orange-300/60 shadow-lg text-orange-500 ring-2 ring-orange-300/40 ring-opacity-75 animate-pulse'
+              : 'border-blue-200/40 shadow-sm text-gray-400 hover:shepherd-blue'
+          }`}
           whileHover={{ y: -1 }}
           whileTap={{ scale: 0.95 }}
           aria-label={isOpen ? "Close Shepherd" : "Open Shepherd"}
+          animate={{
+            boxShadow: shouldGlow
+              ? ['0 0 12px rgba(251, 146, 60, 0.4)', '0 0 24px rgba(251, 146, 60, 0.6)', '0 0 12px rgba(251, 146, 60, 0.4)']
+              : '0 1px 3px rgba(0, 0, 0, 0.1)'
+          }}
+          transition={{
+            boxShadow: {
+              duration: 2.5,
+              repeat: shouldGlow ? Infinity : 0,
+              ease: "easeInOut"
+            }
+          }}
         >
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}

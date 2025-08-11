@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
 import AnimatedText from './AnimatedText.jsx'
-import Shepherd from './components/Shepherd.jsx'
-import { createDream } from './domain/Dream.js'
-import dreamService from './services/DreamService.js'
-import dreamerService from './services/DreamerService.js'
-import { isMobile, generateUUID } from './utils/device.js'
+import Shepherd from './Shepherd.jsx'
+import { createDream } from '../domain/Dream.js'
+import dreamService from '../services/DreamService.js'
+import dreamerService from '../services/DreamerService.js'
+import { isMobile, generateUUID } from '../utils/device.js'
 
 function Intro({ debugMode = false }) {
   ///////////////

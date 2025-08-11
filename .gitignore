@@ -5,3 +5,7 @@ svc/node_modules
 
 svc/conf
 ui/conf/svc.config.js
+
+ui/test-results
+ui/playwright-report
+ui/debug-page.png

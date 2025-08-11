@@ -472,3 +472,18 @@ session 21
   next session
     reset browser states and debug recent changes
     auto-save featured in DreamEditor
+
+session 22
+  started @ 10:49am on 2025-8-8
+  finished @ 11:05am on 2025-8-8
+
+  Short session, but Claude cooked for about an hour
+
+  how can we let Claude off the leash a little bit?
+
+session 23
+  started @ 2:28pm on 2025-8-11
+
+  understand on-going CORS issues
+  fix any obvious issues with current IntroDreamer flow
+  create a task set for Claude to run after session is over

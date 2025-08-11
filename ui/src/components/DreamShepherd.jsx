@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
 import Intro from './Intro.jsx'
-import DreamEditor from './components/DreamEditor.jsx'
-import dreamService from './services/DreamService.js'
-import dreamerService from './services/DreamerService.js'
+import DreamEditor from './DreamEditor.jsx'
+import dreamService from '../services/DreamService.js'
+import dreamerService from '../services/DreamerService.js'
 
 // Global debug mode configuration
 const DEBUG_MODE = true

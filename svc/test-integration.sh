@@ -57,7 +57,7 @@ echo "=== 3. INTRO DREAMER FLOW ==="
 # Create IntroDreamer session
 echo "Creating IntroDreamer session..."
 intro_response=$(curl -s -w "%{http_code}" -o /tmp/intro_create.json \
-    -X POST "$API_BASE/auth/intro" \
+    -X POST "$API_BASE/api/auth/intro" \
     -H "Content-Type: application/json" \
     -d @- << EOF
 {
@@ -81,7 +81,7 @@ fi
 # Get IntroDreamer session by token
 echo "Getting IntroDreamer session by token..."
 get_intro_response=$(curl -s -w "%{http_code}" -o /tmp/intro_get.json \
-    "$API_BASE/auth/intro/$TEMP_TOKEN")
+    "$API_BASE/api/auth/intro/$TEMP_TOKEN")
 
 get_intro_http_code="${get_intro_response: -3}"
 if [ "$get_intro_http_code" = "200" ]; then
@@ -93,7 +93,7 @@ fi
 # Update IntroDreamer session
 echo "Updating IntroDreamer session..."
 update_intro_response=$(curl -s -w "%{http_code}" -o /tmp/intro_update.json \
-    -X PUT "$API_BASE/auth/intro/$TEMP_TOKEN" \
+    -X PUT "$API_BASE/api/auth/intro/$TEMP_TOKEN" \
     -H "Content-Type: application/json" \
     -d "{
         \"dreamVision\": \"Updated vision content for testing\"
@@ -112,7 +112,7 @@ echo "=== 4. REGISTRATION (UPGRADE FROM INTRO) ==="
 # Register full account from IntroDreamer
 echo "Upgrading IntroDreamer to full Dreamer account..."
 register_response=$(curl -s -w "%{http_code}" -o /tmp/register.json \
-    -X POST "$API_BASE/auth/register" \
+    -X POST "$API_BASE/api/auth/register" \
     -H "Content-Type: application/json" \
     -c /tmp/cookies.txt \
     -d "{
@@ -138,9 +138,9 @@ echo ""
 echo "=== 5. AUTHENTICATION FLOW ==="
 
 # Test /auth/me endpoint
-echo "Testing /auth/me endpoint..."
+echo "Testing /api/auth/me endpoint..."
 me_response=$(curl -s -w "%{http_code}" -o /tmp/me.json \
-    "$API_BASE/auth/me" \
+    "$API_BASE/api/auth/me" \
     -H "Authorization: Bearer $ACCESS_TOKEN")
 
 me_http_code="${me_response: -3}"
@@ -153,7 +153,7 @@ fi
 # Test token refresh
 echo "Testing token refresh..."
 refresh_response=$(curl -s -w "%{http_code}" -o /tmp/refresh.json \
-    -X POST "$API_BASE/auth/refresh" \
+    -X POST "$API_BASE/api/auth/refresh" \
     -b /tmp/cookies.txt)
 
 refresh_http_code="${refresh_response: -3}"
@@ -291,7 +291,7 @@ echo "=== 7. DIRECT REGISTRATION TEST ==="
 DIRECT_EMAIL="direct-test-$(date +%s)@dreamshepherd.test"
 echo "Testing direct registration..."
 direct_register_response=$(curl -s -w "%{http_code}" -o /tmp/direct_register.json \
-    -X POST "$API_BASE/auth/register" \
+    -X POST "$API_BASE/api/auth/register" \
     -H "Content-Type: application/json" \
     -c /tmp/direct_cookies.txt \
     -d "{
@@ -315,7 +315,7 @@ echo "=== 8. LOGIN TEST ==="
 # Test login with the direct registration account
 echo "Testing login..."
 login_response=$(curl -s -w "%{http_code}" -o /tmp/login.json \
-    -X POST "$API_BASE/auth/login" \
+    -X POST "$API_BASE/api/auth/login" \
     -H "Content-Type: application/json" \
     -c /tmp/login_cookies.txt \
     -d "{
@@ -333,7 +333,7 @@ fi
 # Test login with wrong password
 echo "Testing login with wrong password..."
 wrong_login_response=$(curl -s -w "%{http_code}" -o /tmp/wrong_login.json \
-    -X POST "$API_BASE/auth/login" \
+    -X POST "$API_BASE/api/auth/login" \
     -H "Content-Type: application/json" \
     -d "{
         \"email\": \"$DIRECT_EMAIL\",
@@ -353,7 +353,7 @@ echo "=== 9. LOGOUT TEST ==="
 # Test logout
 echo "Testing logout..."
 logout_response=$(curl -s -w "%{http_code}" -o /tmp/logout.json \
-    -X POST "$API_BASE/auth/logout" \
+    -X POST "$API_BASE/api/auth/logout" \
     -b /tmp/cookies.txt)
 
 logout_http_code="${logout_response: -3}"
@@ -369,7 +369,7 @@ echo "=== 10. UNAUTHORIZED ACCESS TEST ==="
 # Test accessing protected endpoint without token
 echo "Testing unauthorized access..."
 unauth_response=$(curl -s -w "%{http_code}" -o /tmp/unauth.json \
-    "$API_BASE/auth/me")
+    "$API_BASE/api/auth/me")
 
 unauth_http_code="${unauth_response: -3}"
 if [ "$unauth_http_code" = "401" ]; then

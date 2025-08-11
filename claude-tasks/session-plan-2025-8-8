@@ -1,0 +1,35 @@
+Claude Session for 2025-8-8
+  Claude: Please read the rules below and then try to complete all the session tasks.
+
+  Session Rules:
+    1. Do not install anything of anykind on the host machine. Only update Docker Images and Containers for new software.
+    2. Do not change any files outside of the shepherd/app-repo git repository without asking first
+    3. Do not change any Docker images that are unrelated to the DreamShepherd docker files
+    4. Read the tasks below and complete them. Use the "Checks" beneath each task to determine if the task is complete. If a check fails to pass, try to determine why and start the task over again.
+
+  Session Tasks
+    1. Create a report file called "session-2025-8-8-report"
+    2. Use docker with the compose file in app-repo and start the three services locally
+      -Check: Did the services start?
+      -Check: Can you use curl to get a successful response from the health endpoint of the express server running the shepherd-svc container?
+      -Check: Can you request the homepage of Shepherd's React application and get a response from the Vite server running in the shepherd-ui container?
+      -Check: Can you run "docker exec shepherd-db mongosh" and access the database?
+      -Check: Can you update the files in app-repo/ui/src and make changes to the shepherd-ui service because Vite hot-reloads when code changes are made on the shared volume?
+      -Check: Can you update the files in app-repo/svc/ and make changes to the shepherd-svc service because the Express server reloads when code changes are made on the shared volume?
+      -Report: Update the report with the results of task 1. Try to use less than 100 words.
+    3. Update the Dockerfile for the shepherd ui at app-repo/ui/local.Dockerfile to include Playwright, Jest and jsdom. Build the Dockerfile with "-t shepherd-ui" and shut down the compose services and restart them with the new shepherd-ui image.
+      -Check: Was local.Dockerfile updated correctly to include the new dependencies?
+      -Check: Did the new Docker image build successfully?
+      -Check: Did compose successfully shut down?
+      -Check: Did compose successfully restart the services, using the new shepherd-ui image for the UI container?
+      -Check: Are you able to run "docker exec shepherd-ui <command>" for jest, jsdom and Playwright commands?a
+      -Report: Update the report with the results of task 2. Try to use less than 100 words.
+    4. Run app-repo/svc/test-integration.sh and fix and tests that fail to pass
+      -Check: Did all of the tests pass?
+      -Check: If any tests failed to pass, what was the first test that failed to pass? Did it fail because the test is poorly designed or because the associated code is broken?
+      -Report: Update the report with the results of task 3. Try to use less than 100 words.
+    5. Design and implement integration tests using Playwright to test app-repo/ui/src/DreamShepherd.jsx and app-repo/ui/src/Intro.jsx. Run the tests.
+      -Check: Do the tests cover the functionality of DreamShepherd.jsx and Intro.jsx?
+      -Check: Do the tests run?
+      -Check: What is the first test that doesn't pass? Why didn't it pass?
+      -Report: Update the report with the results of task 3. Try to use less than 100 words.

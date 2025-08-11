@@ -332,6 +332,24 @@ app-repo/
 - **Database Commands**: User must handle database container operations
 - **File System**: Claude can only modify files in the shared `/claude/shepherd/app-repo/` directory
 
+### Repository Artifact Management Rules
+- **Repository Purity**: The git repository (`app-repo/`) must ONLY contain work product and source code
+- **No Build Artifacts**: Never commit build outputs, compiled files, or generated assets to the repository
+- **No Test Artifacts**: Test reports, screenshots, coverage reports, and Playwright artifacts must be excluded from repo
+- **No Application Data**: Database files, logs, cache files, and runtime data must never be stored in repository
+- **Artifact Storage Location**: All generated artifacts should be stored in the parent `shepherd/` directory outside the repository
+- **Volume Mount Strategy**: Docker volume mounts for artifacts should point to `../shepherd/[artifact-type]/` (e.g., `../shepherd/test-results/`, `../shepherd/build/`)
+- **Example Structure**:
+  ```
+  shepherd/
+  ├── app-repo/           # Git repository (source code only)
+  ├── data/              # Database files (from Docker volumes)
+  ├── test-results/      # Playwright test artifacts
+  ├── build/             # Build outputs
+  └── logs/              # Application logs
+  ```
+- **Docker Compose**: Use relative paths like `../shepherd/data:/data` to keep artifacts outside repository
+
 ### Keep It Simple Rules
 - Start with functions before classes
 - Use plain objects before complex state management
@@ -440,6 +458,13 @@ This approach prioritizes reliability and debuggability while maintaining develo
 - **Frontend Services**: Complete services for all 7 domain entities (ready for API integration)
 - **UI**: Contemplative DreamEditor with Tiptap rich text editor, chiseled stone well design, and floating toolbar
 - **Testing**: Comprehensive integration test suite covering all endpoints and edge cases
+  - **Backend Testing**: Integration tests in `svc/test-integration.sh` (22 passing tests)
+  - **Frontend Testing**: Playwright end-to-end tests with Debian-based Docker setup
+  - **Test Structure**: 
+    - `ui/conf/playwright.config.js` - Playwright configuration
+    - `ui/src/test/` - General UI tests (basic functionality, debug utilities)
+    - `ui/src/components/test/` - Component-specific tests (intro.spec.js, dream-shepherd.spec.js)
+  - **Test Artifacts**: Stored outside repository in `../shepherd/test-results/` per artifact management rules
 - **Network**: Docker host networking for multi-device access across UI (5173), API (3001), DB (27017)
 - **Phase**: 2 (Complete backend vertical slice, ready for frontend integration)
 - **Files**: 30+ total (major expansion with complete authentication system)
